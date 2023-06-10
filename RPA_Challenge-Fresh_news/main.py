@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 # import custom modules
 from Common.chrome_configs import chrome_options, chrome_service
+import Common.common_selenium_methods as common
 # import pages
 from Pages.home_page import HomePage
 from Pages.search_page import SearchPage
@@ -24,6 +25,9 @@ def exit(driver=None):
 
 try:
     driver = webdriver.Chrome(options=chrome_options, service=chrome_service)
+    # set window position
+    driver.set_window_position(*common.get_second_monitor_position())
+    driver.maximize_window()
     driver.get("https://www.nytimes.com")
 
     home_page = HomePage(driver)
