@@ -9,6 +9,8 @@ def type_and_validate(driver, selector, text):
 
     assert search_field_typed_value == text, f"Typed text doesn't match for: {selector}"
 
+def get_main_monitor_position():
+    return (0, 0)
 
 def get_second_monitor_position():
     monitors = get_monitors()

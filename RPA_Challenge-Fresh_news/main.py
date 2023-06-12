@@ -6,11 +6,12 @@ from selenium.webdriver.common.keys import Keys
 import sys
 from datetime import datetime
 # import custom modules
-from Common.chrome_configs import chrome_options, chrome_service
-import Common.common_selenium_methods as common
+from common.chrome_configs import chrome_options, chrome_service
+import common.common_selenium_methods as common
+import constants as const
 # import pages
-from Pages.home_page import HomePage
-from Pages.search_page import SearchPage
+from pages.home_page import HomePage
+from pages.search_page import SearchPage
 
 # Exit
 def exit(driver=None):
@@ -26,13 +27,14 @@ def exit(driver=None):
 try:
     driver = webdriver.Chrome(options=chrome_options, service=chrome_service)
     # set window position
-    driver.set_window_position(*common.get_second_monitor_position())
+    driver.set_window_position(*common.get_main_monitor_position())
     driver.maximize_window()
-    driver.get("https://www.nytimes.com")
 
+    # Home page
     home_page = HomePage(driver)
+    home_page.lend_first_page()
     home_page.enter_search_query("Ukraine")
-
+    # Search page
     search_page = SearchPage(driver)
     date_input_format = "%m/%d/%Y"
     startDate = datetime.strptime("06/07/2023", date_input_format)

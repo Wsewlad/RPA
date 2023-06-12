@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-import Common.common_selenium_methods as common
+import common.common_selenium_methods as common
+import constants as const
 
 class HomePage:
     SEARCH_BUTTON = (By.CSS_SELECTOR, '[data-test-id="search-button"]')
@@ -11,6 +12,9 @@ class HomePage:
 
     def __init__(self, driver):
         self.driver = driver
+        
+    def lend_first_page(self):
+        self.driver.get(const.BASE_URL)
         title = self.driver.title
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + self.driver.current_url
 

@@ -5,7 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 # import system modules
 from urllib.parse import urlparse, parse_qs
 # import custom modules
-import Common.common_selenium_methods as common
+import common.common_selenium_methods as common
 
 class SearchPage:
     SEARCH_DATE_DROPDOWN = (By.CSS_SELECTOR, '[data-testid="search-date-dropdown-a"]')
