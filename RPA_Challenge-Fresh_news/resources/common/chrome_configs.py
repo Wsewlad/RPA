@@ -1,6 +1,6 @@
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-import constants as const
+import variables.constants as const
 
 chrome_options = Options()
 chrome_service = Service(executable_path=const.PATH)
