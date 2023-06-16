@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 5.0.1 (Python 3.9.13 on darwin)" generated="20230616 18:49:31.142" rpa="true" schemaversion="3">
+<suite id="s1" name="Tasks" source="/Users/vladyslavfil/RPA/my-rsb-robot/tasks.robot">
+<test id="s1-t1" name="Insert the sales data for the week and export it as a PDF" line="8">
+<kw name="Open the intranet website">
+<kw name="Open Available Browser" library="RPA.Browser.Selenium">
+<arg>https://robotsparebinindustries.com/</arg>
+<doc>Attempts to open a browser on the user's device from a set of
+supported browsers. Automatically downloads a corresponding webdriver
+if none is already installed.</doc>
+<msg timestamp="20230616 18:49:33.447" level="INFO">Creating an instance of the Chrome WebDriver.</msg>
+<msg timestamp="20230616 18:49:38.241" level="INFO">Created Chrome browser with arguments: --disable-dev-shm-usage --disable-web-security --allow-running-insecure-content --no-sandbox</msg>
+<msg timestamp="20230616 18:49:38.244" level="INFO" html="true">&lt;p&gt;Attempted combinations:&lt;/p&gt;&lt;div class="doc"&gt;&lt;table&gt;&lt;tr&gt;&lt;th&gt;Browser&lt;/th&gt;&lt;th&gt;Download&lt;/th&gt;&lt;th&gt;Error&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chrome&lt;/td&gt;&lt;td&gt;False&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</msg>
+<msg timestamp="20230616 18:49:38.245" level="INFO">Opening url 'https://robotsparebinindustries.com/'</msg>
+<status status="PASS" starttime="20230616 18:49:33.444" endtime="20230616 18:49:40.864"/>
+</kw>
+<status status="PASS" starttime="20230616 18:49:33.440" endtime="20230616 18:49:40.867"/>
+</kw>
+<kw name="Log in">
+<kw name="Input Text" library="RPA.Browser.Selenium">
+<arg>username</arg>
+<arg>maria</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<msg timestamp="20230616 18:49:40.878" level="INFO">Typing text 'maria' into text field 'username'.</msg>
+<status status="PASS" starttime="20230616 18:49:40.872" endtime="20230616 18:49:41.634"/>
+</kw>
+<kw name="Input Password" library="RPA.Browser.Selenium">
+<arg>password</arg>
+<arg>thoushallnotpass</arg>
+<doc>Types the given password into the text field identified by ``locator``.</doc>
+<msg timestamp="20230616 18:49:41.638" level="INFO">Typing password into text field 'password'.</msg>
+<msg timestamp="20230616 18:49:41.717" level="INFO">Temporally setting log level to: NONE</msg>
+<msg timestamp="20230616 18:49:41.938" level="INFO">Log level changed from NONE to INFO.</msg>
+<status status="PASS" starttime="20230616 18:49:41.636" endtime="20230616 18:49:41.939"/>
+</kw>
+<kw name="Submit Form" library="RPA.Browser.Selenium">
+<doc>Submits a form identified by ``locator``.</doc>
+<msg timestamp="20230616 18:49:41.943" level="INFO">Submitting form 'None'.</msg>
+<status status="PASS" starttime="20230616 18:49:41.941" endtime="20230616 18:49:42.040"/>
+</kw>
+<status status="PASS" starttime="20230616 18:49:40.869" endtime="20230616 18:49:42.043"/>
+</kw>
+<status status="PASS" starttime="20230616 18:49:33.433" endtime="20230616 18:49:42.051"/>
+</test>
+<doc>Insert the sales data for the week and export it as a PDF.</doc>
+<status status="PASS" starttime="20230616 18:49:31.178" endtime="20230616 18:49:42.062"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tasks</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Tasks">Tasks</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
