@@ -15,7 +15,6 @@ def open_the_intranet_website():
 
 
 def log_in():
-
     browser_lib.input_text("username", "maria")
     browser_lib.input_text("password", "thoushallnotpass")
     browser_lib.submit_form()
