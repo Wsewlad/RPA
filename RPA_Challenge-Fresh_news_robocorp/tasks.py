@@ -9,6 +9,7 @@ from pages.home_page import HomePage
 from pages.search_page import SearchPage
 # import custom modules
 import constants as Const
+from common.Dates import get_date_range
 
 # search_phrase = "test"
 # categories = ["category"]
@@ -26,6 +27,7 @@ def main():
         categories = variables["categories"]
         sections = variables["sections"]
         numberOfMonth = variables["number_of_month"]
+        startDate, endDate = get_date_range(numberOfMonth)
 
         browserLib: Selenium = Selenium()
         browserLib.auto_close = False
@@ -37,12 +39,12 @@ def main():
 
         # Search page
         search_page = SearchPage(browserLib)
-        startDate = datetime.strptime(
-            "06/07/2023", Const.DATE_INPUT_FORMAT
-        )
-        endDate = datetime.strptime(
-            "06/08/2023", Const.DATE_INPUT_FORMAT
-        )
+        # startDate = datetime.strptime(
+        #     "06/07/2023", Const.DATE_INPUT_FORMAT
+        # )
+        # endDate = datetime.strptime(
+        #     "06/08/2023", Const.DATE_INPUT_FORMAT
+        # )
         search_page.set_date_range(startDate, endDate)
         search_page.expand_and_count_all_results()
 

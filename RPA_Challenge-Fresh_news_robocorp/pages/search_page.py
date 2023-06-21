@@ -60,10 +60,14 @@ class SearchPage:
             searchResults = 'css:[data-testid="search-results"]'
             searchResult = 'css:[data-testid="search-bodega-result"]'
 
+            self.browserLib.mouse_over(showMoreButton)
             # Expand all elements
             while self.browserLib.is_element_visible(showMoreButton):
                 try:
-                    self.browserLib.click_button(showMoreButton)
+                    self.browserLib.mouse_over(showMoreButton)
+                    self.browserLib.click_element_when_clickable(
+                        showMoreButton, timeout=10)
+                    # self.browserLib.click_button(showMoreButton)
                 except:
                     print("No more Show Button")
                     break
@@ -72,12 +76,14 @@ class SearchPage:
                 searchResults, timeout=10
             )
             # get all elements
+            count = self.browserLib.get_element_count(searchResult)
             searchResultList = self.browserLib.find_element(searchResults)
             searchResultEtems = self.browserLib.find_elements(
                 searchResult, searchResultList
             )
 
-            print(len(searchResultEtems))
+            print("count: " + str(count))
+            print("len: " + str(len(searchResultEtems)))
 
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
