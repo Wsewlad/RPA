@@ -1,57 +1,55 @@
 # import RPA modules
 from RPA.Browser.Selenium import Selenium
-from selenium.webdriver.support.wait import WebDriverWait
 # import system modules
 from urllib.parse import urlparse, parse_qs
-# import custom modules
 
 
 class SearchPage:
-    SEARCH_DATE_DROPDOWN = 'css:[data-testid="search-date-dropdown-a"]'
-    SPECIFIC_DATES_OPTION = 'css:[value="Specific Dates"]'
-    START_DATE_FIELD = 'css:[data-testid="DateRange-startDate"]'
-    END_DATE_FIELD = 'css:[data-testid="DateRange-endDate"]'
-    SHOW_MORE_BUTTON = 'css:[data-testid="search-show-more-button"]'
-    SEARCH_RESULTS_LIST = 'css:[data-testid="search-results"]'
-    SEARCH_ITEM = 'css:[data-testid="search-bodega-result"]'
 
-    date_input_format = "%m/%d/%Y"
-    date_query_format = "%Y%m%d"
+    dateInputFormat = "%m/%d/%Y"
+    dateQueryFormat = "%Y%m%d"
 
-    def __init__(self, browser_lib):
-        self.browser_lib = browser_lib
-        title = self.browser_lib.get_title()
+    def __init__(self, browserLib: Selenium):
+        self.browserLib = browserLib
+        title = self.browserLib.get_title()
         assert title == "The New York Times - Search", "This is not Search Page, current page is - " + \
-            self.browser_lib.get_location()
+            self.browserLib.get_location()
 
     # Set date range
     def set_date_range(self, startDate, endDate):
         try:
+            # define selectors
+            searchDateDropdown = 'css:[data-testid="search-date-dropdown-a"]'
+            specificDates = 'css:[value="Specific Dates"]'
+            dateRangeStartDate = 'css:[data-testid="DateRange-startDate"]'
+            dateRangeEndDate = 'css:[data-testid="DateRange-endDate"]'
+
             # navigate to date range picker
-            self.browser_lib.get_webElement(self.SEARCH_DATE_DROPDOWN).click()
-            self.driver.find_element(self.SPECIFIC_DATES_OPTION).click()
+            self.browserLib.click_element(searchDateDropdown)
+            self.browserLib.click_element(specificDates)
+
             # set dates
-            # startDate_imput_string = startDate.strftime(self.date_input_format)
-            # common.type_and_validate(
-            #     self.driver, self.START_DATE_FIELD, startDate_imput_string)
+            startDateInputString = startDate.strftime(self.dateInputFormat)
+            endDateInputString = endDate.strftime(self.dateInputFormat)
 
-            # endDate_imput_string = endDate.strftime(self.date_input_format)
-            # common.type_and_validate(
-            #     self.driver, self.END_DATE_FIELD, endDate_imput_string)
-
-            self.browser_lib.press_keys(self.END_DATE_FIELD, "ENTER")
+            self.browserLib.input_text(
+                dateRangeStartDate, startDateInputString
+            )
+            self.browserLib.input_text(dateRangeEndDate, endDateInputString)
+            self.browserLib.press_keys(dateRangeEndDate, "ENTER")
 
             # parse dates from current url guery params
-            current_url = urlparse(self.driver.current_url)
-            query_params = parse_qs(current_url.query)
-            parsed_startDate_query_param = query_params.get('startDate', [''])[
+            currentUrl = urlparse(self.browserLib.get_location())
+            queryParams = parse_qs(currentUrl.query)
+            parsedStartDate = queryParams.get('startDate', [''])[
                 0]
-            parsed_endDate_query_param = query_params.get('endDate', [''])[0]
+            parsedEndDate = queryParams.get('endDate', [''])[0]
+
             # validate selected dates
-            assert parsed_startDate_query_param == startDate.strftime(
-                self.date_query_format), "Start date doesn't match"
-            assert parsed_endDate_query_param == endDate.strftime(
-                self.date_query_format), "End date doesn't match"
+            assert parsedStartDate == startDate.strftime(
+                self.dateQueryFormat), "Start date doesn't match"
+            assert parsedEndDate == endDate.strftime(
+                self.dateQueryFormat), "End date doesn't match"
 
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
@@ -59,26 +57,28 @@ class SearchPage:
     # Expand and count all results
     def expand_and_count_all_results(self):
         try:
-            search_show_more_button = self.driver.find_element(
-                *self.SHOW_MORE_BUTTON)
-            while search_show_more_button and search_show_more_button.is_displayed:
+            # define selectors
+            showMoreButton = 'css:[data-testid="search-show-more-button"]'
+            searchResults = 'css:[data-testid="search-results"]'
+            searchResult = 'css:[data-testid="search-bodega-result"]'
+
+            # Expand all elements
+            while self.browserLib.is_element_visible(showMoreButton):
                 try:
-                    search_show_more_button.click()
-                    search_show_more_button = self.driver.find_element(
-                        *self.SHOW_MORE_BUTTON)
+                    self.browserLib.click_button(showMoreButton)
                 except:
-                    print("Finish")
+                    print("No more Show Button")
                     break
 
-            wait = WebDriverWait(self.driver, timeout=5)
+            self.browserLib.wait_until_element_is_enabled(
+                searchResults, timeout=10
+            )
+            # get all elements
+            searchResultList = self.browserLib.find_element(searchResults)
+            searchResultEtems = self.browserLib.find_elements(
+                searchResult, searchResultList)
 
-            search_result_list = self.driver.find_element(
-                *self.SEARCH_RESULTS_LIST)
-            wait.until(lambda d: search_result_list.is_enabled())
-            search_result_items = search_result_list.find_elements(
-                *self.SEARCH_ITEM)
-
-            print(len(search_result_items))
+            print(len(searchResultEtems))
 
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
