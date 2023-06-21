@@ -5,6 +5,8 @@ from datetime import datetime
 # import pages
 from pages.home_page import HomePage
 from pages.search_page import SearchPage
+# import custom modules
+import constants as Const
 
 # search_phrase = "test"
 # categories = ["category"]
@@ -21,13 +23,16 @@ def main():
         home_page = HomePage(browser_lib)
         home_page.lend_first_page()
         home_page.enter_search_query("Ukraine")
+
         # Search page
         search_page = SearchPage(browser_lib)
-        date_input_format = "%m/%d/%Y"
-        startDate = datetime.strptime("06/07/2023", date_input_format)
-        endDate = datetime.strptime("06/08/2023", date_input_format)
+        startDate = datetime.strptime(
+            "06/07/2023", Const.DATE_INPUT_FORMAT
+        )
+        endDate = datetime.strptime(
+            "06/08/2023", Const.DATE_INPUT_FORMAT
+        )
         search_page.set_date_range(startDate, endDate)
-
         search_page.expand_and_count_all_results()
 
     except Exception as e:

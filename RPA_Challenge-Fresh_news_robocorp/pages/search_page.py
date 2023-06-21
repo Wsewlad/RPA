@@ -2,12 +2,11 @@
 from RPA.Browser.Selenium import Selenium
 # import system modules
 from urllib.parse import urlparse, parse_qs
+# import custom modules
+import constants as Const
 
 
 class SearchPage:
-
-    dateInputFormat = "%m/%d/%Y"
-    dateQueryFormat = "%Y%m%d"
 
     def __init__(self, browserLib: Selenium):
         self.browserLib = browserLib
@@ -29,8 +28,8 @@ class SearchPage:
             self.browserLib.click_element(specificDates)
 
             # set dates
-            startDateInputString = startDate.strftime(self.dateInputFormat)
-            endDateInputString = endDate.strftime(self.dateInputFormat)
+            startDateInputString = startDate.strftime(Const.DATE_INPUT_FORMAT)
+            endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
 
             self.browserLib.input_text(
                 dateRangeStartDate, startDateInputString
@@ -41,15 +40,14 @@ class SearchPage:
             # parse dates from current url guery params
             currentUrl = urlparse(self.browserLib.get_location())
             queryParams = parse_qs(currentUrl.query)
-            parsedStartDate = queryParams.get('startDate', [''])[
-                0]
+            parsedStartDate = queryParams.get('startDate', [''])[0]
             parsedEndDate = queryParams.get('endDate', [''])[0]
 
             # validate selected dates
             assert parsedStartDate == startDate.strftime(
-                self.dateQueryFormat), "Start date doesn't match"
+                Const.DATE_QUERY_FORMAT), "Start date doesn't match"
             assert parsedEndDate == endDate.strftime(
-                self.dateQueryFormat), "End date doesn't match"
+                Const.DATE_QUERY_FORMAT), "End date doesn't match"
 
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
@@ -76,7 +74,8 @@ class SearchPage:
             # get all elements
             searchResultList = self.browserLib.find_element(searchResults)
             searchResultEtems = self.browserLib.find_elements(
-                searchResult, searchResultList)
+                searchResult, searchResultList
+            )
 
             print(len(searchResultEtems))
 
