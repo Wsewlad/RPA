@@ -31,12 +31,19 @@ def main():
 
         # Search page
         searchPage = SearchPage(browserLib)
+
         if len(categories) > 0:
-            searchPage.set_categories(categories)
+            searchPage.set_filters(categories, 'type')
         else:
             print("No categories")
-        # searchPage.set_date_range(startDate, endDate)
-        # searchPage.expand_and_count_all_results()
+
+        if len(sections) > 0:
+            searchPage.set_filters(sections, 'section')
+        else:
+            print("No sections")
+        searchPage.set_date_range(startDate, endDate)
+        searchPage.sort_by_newest()
+        searchPage.expand_and_count_all_results()
 
     except Exception as e:
         print("Error:", e)

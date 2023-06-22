@@ -47,15 +47,19 @@ class SearchPage:
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
-    def set_categories(self, categories: list[str]):
+    def set_filters(self, items: list[str], type: str):
         """Set categories and verify if selected."""
+        if type not in ['type', 'section']:
+            raise Exception(f'[{self.__class__.__name__}]',
+                            f"Undefined filter type: {type}")
+
         # Define selectors
-        typeFormSelector = 'css:[role="form"][data-testid="type"]'
+        formSelector = 'css:[role="form"][data-testid="{}"]'.format(type)
         buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
         dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
         checkboxSelector = 'css:input[type="checkbox"]'
         # Open dropdown list
-        typeFormElement = self.browserLib.find_element(typeFormSelector)
+        typeFormElement = self.browserLib.find_element(formSelector)
         buttonElement = self.browserLib.find_element(
             buttonSelector, typeFormElement)
         self.browserLib.click_element(buttonElement)
@@ -63,35 +67,50 @@ class SearchPage:
         dropdownListElement = self.browserLib.find_element(
             dropdownListSelector, typeFormElement)
         self.browserLib.wait_until_element_is_visible(dropdownListElement)
+
         # Find all checkbox elements and map it by value
         checkboxElements = self.browserLib.find_elements(
             checkboxSelector, dropdownListElement)
         checkboxByValue: dict[str, any] = dict([
             (
-                self.browserLib.get_element_attribute(checkbox, 'value'),
+                self.browserLib.get_element_attribute(checkbox, 'value').split('|nyt:', 1)[0].replace(
+                    " ", "").lower(),
                 checkbox
             )
             for checkbox in checkboxElements
         ])
         # If categories contains `Any`` - skip selecting
-        uniqueCategories = set(categories)
-        formattedCategories = set([category.replace(
-            " ", "").lower() for category in uniqueCategories])
-        if "any" in formattedCategories:
+        uniqueItems = set(items)
+        formattedItems = set([category.replace(
+            " ", "").lower() for category in uniqueItems])
+        if "any" in formattedItems:
             return
-        # Select categories and save notFoundCategories
-        notFoundCategories = []
-        for category in uniqueCategories:
+        # Select items and save notFoundItems
+        notFoundItems = []
+        for category in uniqueItems:
             try:
                 formattedCategory = category.replace(" ", "").lower()
                 self.browserLib.click_element(
                     checkboxByValue[formattedCategory])
             except:
-                notFoundCategories.append(category)
-        print("Not found: ", notFoundCategories)
-        # Verify selected categories
-        self.__verify_selected_categories(
-            notFoundCategories, formattedCategories)
+                notFoundItems.append(category)
+        print("Not found: ", notFoundItems)
+        # Verify selected items
+        self.__verify_selected_items(
+            notFoundItems, formattedItems, type)
+
+    def sort_by_newest(self):
+        """Sort articles by newest."""
+        # Define selectors
+        sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
+        # Select
+        valueToSelect = 'newest'
+        self.browserLib.select_from_list_by_value(
+            sortBySelector, valueToSelect)
+        # Verify
+        sortByElementValue = self.browserLib.get_selected_list_value(
+            sortBySelector)
+        assert sortByElementValue == valueToSelect
 
     def expand_and_count_all_results(self):
         """Expand and count all results."""
@@ -122,29 +141,31 @@ class SearchPage:
 
     # Helper Methods
 
-    def __verify_selected_categories(self, notFoundCategories, formattedCategories):
-        """Verify selected categories."""
+    def __verify_selected_items(self, notFoundItems, formattedItems, type: str):
+        """Verify selected items."""
         # Define selectors
-        selectedCategoriesContainerSelector = 'css:div.query-facet-types'
-        selectedCategorySelector = 'css:button[facet-name="types"]'
+        selectedItemContainerSelector = f'css:div.query-facet-{type}s'
+        selectedItemSelector = f'css:button[facet-name="{type}s"]'
         # Find container
-        selectedCategoriesContainerElement = self.browserLib.find_element(
-            selectedCategoriesContainerSelector)
+        selectedItemsContainerElement = self.browserLib.find_element(
+            selectedItemContainerSelector)
         # Find elements
-        selectedCategoryElements = self.browserLib.find_elements(
-            selectedCategorySelector, selectedCategoriesContainerElement)
+        selectedItemElements = self.browserLib.find_elements(
+            selectedItemSelector, selectedItemsContainerElement)
         # Get element values
-        selectedCategoriesLabels = [
-            self.browserLib.get_element_attribute(category, 'value')
-            for category in selectedCategoryElements
+        selectedItemsLabels = [
+            self.browserLib.get_element_attribute(
+                category, 'value').split('|nyt:', 1)[0].replace(
+                " ", "").lower()
+            for category in selectedItemElements
         ]
-        notFoundCategoriesFormatted = [category.replace(
-            " ", "").lower() for category in notFoundCategories]
-        expectedSelectedCategories = [
-            category for category in formattedCategories if category not in notFoundCategoriesFormatted]
+        notFoundItemsFormatted = [item.replace(
+            " ", "").lower() for item in notFoundItems]
+        expectedSelectedItems = [
+            item for item in formattedItems if item not in notFoundItemsFormatted]
         # Verify
-        assert len(set(expectedSelectedCategories).intersection(selectedCategoriesLabels)) == len(
-            expectedSelectedCategories), "Selected categories doesn't match"
+        assert len(set(expectedSelectedItems).intersection(selectedItemsLabels)) == len(
+            expectedSelectedItems), f"Selected {type} items doesn't match"
 
     def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
