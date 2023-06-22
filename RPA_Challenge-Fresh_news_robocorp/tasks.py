@@ -15,10 +15,10 @@ def main():
         library.get_input_work_item()
         variables = library.get_work_item_variables()
 
-        searchPhrase = variables["search_phrase"]
-        categories = variables["categories"]
-        sections = variables["sections"]
-        numberOfMonth = variables["number_of_month"]
+        searchPhrase: str = variables["search_phrase"]
+        categories: list[str] = variables["categories"]
+        sections: list[str] = variables["sections"]
+        numberOfMonth: int = variables["number_of_month"] | 0
         startDate, endDate = get_date_range(numberOfMonth)
 
         browserLib: Selenium = Selenium()
@@ -31,8 +31,12 @@ def main():
 
         # Search page
         searchPage = SearchPage(browserLib)
-        searchPage.set_date_range(startDate, endDate)
-        searchPage.expand_and_count_all_results()
+        if len(categories) > 0:
+            searchPage.set_categories(categories)
+        else:
+            print("No categories")
+        # searchPage.set_date_range(startDate, endDate)
+        # searchPage.expand_and_count_all_results()
 
     except Exception as e:
         print("Error:", e)

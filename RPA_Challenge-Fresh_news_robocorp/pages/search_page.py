@@ -47,6 +47,52 @@ class SearchPage:
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
+    def set_categories(self, categories: list[str]):
+        """Set categories and verify if selected."""
+        # Define selectors
+        typeFormSelector = 'css:[role="form"][data-testid="type"]'
+        buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
+        dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
+        checkboxSelector = 'css:input[type="checkbox"]'
+        # Open dropdown list
+        typeFormElement = self.browserLib.find_element(typeFormSelector)
+        buttonElement = self.browserLib.find_element(
+            buttonSelector, typeFormElement)
+        self.browserLib.click_element(buttonElement)
+        # Wait for dropdown list
+        dropdownListElement = self.browserLib.find_element(
+            dropdownListSelector, typeFormElement)
+        self.browserLib.wait_until_element_is_visible(dropdownListElement)
+        # Find all checkbox elements and map it by value
+        checkboxElements = self.browserLib.find_elements(
+            checkboxSelector, dropdownListElement)
+        checkboxByValue: dict[str, any] = dict([
+            (
+                self.browserLib.get_element_attribute(checkbox, 'value'),
+                checkbox
+            )
+            for checkbox in checkboxElements
+        ])
+        # If categories contains `Any`` - skip selecting
+        uniqueCategories = set(categories)
+        formattedCategories = set([category.replace(
+            " ", "").lower() for category in uniqueCategories])
+        if "any" in formattedCategories:
+            return
+        # Select categories and save notFoundCategories
+        notFoundCategories = []
+        for category in uniqueCategories:
+            try:
+                formattedCategory = category.replace(" ", "").lower()
+                self.browserLib.click_element(
+                    checkboxByValue[formattedCategory])
+            except:
+                notFoundCategories.append(category)
+        print("Not found: ", notFoundCategories)
+        # Verify selected categories
+        self.__verify_selected_categories(
+            notFoundCategories, formattedCategories)
+
     def expand_and_count_all_results(self):
         """Expand and count all results."""
         try:
@@ -75,6 +121,30 @@ class SearchPage:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
     # Helper Methods
+
+    def __verify_selected_categories(self, notFoundCategories, formattedCategories):
+        """Verify selected categories."""
+        # Define selectors
+        selectedCategoriesContainerSelector = 'css:div.query-facet-types'
+        selectedCategorySelector = 'css:button[facet-name="types"]'
+        # Find container
+        selectedCategoriesContainerElement = self.browserLib.find_element(
+            selectedCategoriesContainerSelector)
+        # Find elements
+        selectedCategoryElements = self.browserLib.find_elements(
+            selectedCategorySelector, selectedCategoriesContainerElement)
+        # Get element values
+        selectedCategoriesLabels = [
+            self.browserLib.get_element_attribute(category, 'value')
+            for category in selectedCategoryElements
+        ]
+        notFoundCategoriesFormatted = [category.replace(
+            " ", "").lower() for category in notFoundCategories]
+        expectedSelectedCategories = [
+            category for category in formattedCategories if category not in notFoundCategoriesFormatted]
+        # Verify
+        assert len(set(expectedSelectedCategories).intersection(selectedCategoriesLabels)) == len(
+            expectedSelectedCategories), "Selected categories doesn't match"
 
     def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""

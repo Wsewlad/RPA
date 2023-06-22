@@ -3,7 +3,14 @@
     "payload": {
       "search_phrase": "Ukraine",
       "categories": [
-        "category"
+        "Article",
+        "Audio",
+        "Image Slideshow",
+        "Interactive Graphics",
+        "Recipe",
+        "Video",
+        "Wirecutterarticle",
+        "Something"
       ],
       "sections": [
         "section"
