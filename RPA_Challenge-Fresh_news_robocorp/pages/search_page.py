@@ -34,6 +34,7 @@ class SearchPage:
             endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
             startDateQueryString = startDate.strftime(Const.DATE_QUERY_FORMAT)
             endDateQueryString = endDate.strftime(Const.DATE_QUERY_FORMAT)
+
             # Input dates
             self.browserLib.input_text(
                 dateRangeStartDateSelector, startDateInputString
@@ -41,76 +42,91 @@ class SearchPage:
             self.browserLib.input_text(
                 dateRangeEndDateSelector, endDateInputString)
             self.browserLib.press_keys(dateRangeEndDateSelector, "ENTER")
+
             # Validate selected dates
             self.__verify_date_entries(
                 startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
+
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
     def set_filters(self, items: list[str], type: str):
-        """Set categories and verify if selected."""
-        if type not in ['type', 'section']:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            f"Undefined filter type: {type}")
+        """Set filters and verify if selected."""
+        try:
+            if type not in ['type', 'section']:
+                raise Exception(f'[{self.__class__.__name__}]',
+                                f"Undefined filter type: {type}")
 
-        # Define selectors
-        formSelector = 'css:[role="form"][data-testid="{}"]'.format(type)
-        buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
-        dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
-        checkboxSelector = 'css:input[type="checkbox"]'
-        # Open dropdown list
-        typeFormElement = self.browserLib.find_element(formSelector)
-        buttonElement = self.browserLib.find_element(
-            buttonSelector, typeFormElement)
-        self.browserLib.click_element(buttonElement)
-        # Wait for dropdown list
-        dropdownListElement = self.browserLib.find_element(
-            dropdownListSelector, typeFormElement)
-        self.browserLib.wait_until_element_is_visible(dropdownListElement)
+            # Define selectors
+            formSelector = 'css:[role="form"][data-testid="{}"]'.format(type)
+            buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
+            dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
+            checkboxSelector = 'css:input[type="checkbox"]'
 
-        # Find all checkbox elements and map it by value
-        checkboxElements = self.browserLib.find_elements(
-            checkboxSelector, dropdownListElement)
-        checkboxByValue: dict[str, any] = dict([
-            (
-                self.browserLib.get_element_attribute(checkbox, 'value').split('|nyt:', 1)[0].replace(
-                    " ", "").lower(),
-                checkbox
-            )
-            for checkbox in checkboxElements
-        ])
-        # If categories contains `Any`` - skip selecting
-        uniqueItems = set(items)
-        formattedItems = set([category.replace(
-            " ", "").lower() for category in uniqueItems])
-        if "any" in formattedItems:
-            return
-        # Select items and save notFoundItems
-        notFoundItems = []
-        for category in uniqueItems:
-            try:
-                formattedCategory = category.replace(" ", "").lower()
-                self.browserLib.click_element(
-                    checkboxByValue[formattedCategory])
-            except:
-                notFoundItems.append(category)
-        print("Not found: ", notFoundItems)
-        # Verify selected items
-        self.__verify_selected_items(
-            notFoundItems, formattedItems, type)
+            # Open dropdown list
+            typeFormElement = self.browserLib.find_element(formSelector)
+            buttonElement = self.browserLib.find_element(
+                buttonSelector, typeFormElement)
+            self.browserLib.click_element(buttonElement)
+
+            # Wait for dropdown list
+            dropdownListElement = self.browserLib.find_element(
+                dropdownListSelector, typeFormElement)
+            self.browserLib.wait_until_element_is_visible(dropdownListElement)
+
+            # Find all checkbox elements and map it by value
+            checkboxElements = self.browserLib.find_elements(
+                checkboxSelector, dropdownListElement)
+            checkboxByValue: dict[str, any] = dict([
+                (
+                    self.browserLib.get_element_attribute(checkbox, 'value').split('|nyt:', 1)[0].replace(
+                        " ", "").lower(),
+                    checkbox
+                )
+                for checkbox in checkboxElements
+            ])
+
+            # If categories contains `Any`` - skip selecting
+            uniqueItems = set(items)
+            formattedItems = set([category.replace(
+                " ", "").lower() for category in uniqueItems])
+            if "any" in formattedItems:
+                return
+
+            # Select items and save notFoundItems
+            notFoundItems = []
+            for category in uniqueItems:
+                try:
+                    formattedCategory = category.replace(" ", "").lower()
+                    self.browserLib.click_element(
+                        checkboxByValue[formattedCategory])
+                except:
+                    notFoundItems.append(category)
+            print("Not found: ", notFoundItems)
+
+            # Verify selected items
+            self.__verify_selected_items(
+                notFoundItems, formattedItems, type)
+        except Exception as e:
+            raise Exception(f'[{self.__class__.__name__}]', e)
 
     def sort_by_newest(self):
         """Sort articles by newest."""
-        # Define selectors
-        sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
-        # Select
-        valueToSelect = 'newest'
-        self.browserLib.select_from_list_by_value(
-            sortBySelector, valueToSelect)
-        # Verify
-        sortByElementValue = self.browserLib.get_selected_list_value(
-            sortBySelector)
-        assert sortByElementValue == valueToSelect
+        try:
+            # Define selectors
+            sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
+
+            # Select
+            valueToSelect = 'newest'
+            self.browserLib.select_from_list_by_value(
+                sortBySelector, valueToSelect)
+
+            # Verify
+            sortByElementValue = self.browserLib.get_selected_list_value(
+                sortBySelector)
+            assert sortByElementValue == valueToSelect
+        except Exception as e:
+            raise Exception(f'[{self.__class__.__name__}]', e)
 
     def expand_and_count_all_results(self):
         """Expand and count all results."""
@@ -120,10 +136,12 @@ class SearchPage:
             searchResultsSelector = 'css:[data-testid="search-results"]'
             searchResultSelector = 'css:[data-testid="search-bodega-result"]'
             searchResultLinkSelector = 'css:[data-testid="search-bodega-result"] a'
+
             # Expand all elements
             self.__expand_all_elements(
                 showMoreButtonSelector, searchResultsSelector
             )
+
             # Get all elements
             searchResultList = self.browserLib.find_element(
                 searchResultsSelector)
@@ -131,6 +149,7 @@ class SearchPage:
                 searchResultSelector, searchResultList
             )
             print("count: " + str(len(searchResultItems)))
+
             # Get unique elements
             uniqueElements = self.__get_unique_elements(
                 searchResultItems, searchResultLinkSelector)
@@ -143,15 +162,19 @@ class SearchPage:
 
     def __verify_selected_items(self, notFoundItems, formattedItems, type: str):
         """Verify selected items."""
+
         # Define selectors
         selectedItemContainerSelector = f'css:div.query-facet-{type}s'
         selectedItemSelector = f'css:button[facet-name="{type}s"]'
+
         # Find container
         selectedItemsContainerElement = self.browserLib.find_element(
             selectedItemContainerSelector)
+
         # Find elements
         selectedItemElements = self.browserLib.find_elements(
             selectedItemSelector, selectedItemsContainerElement)
+
         # Get element values
         selectedItemsLabels = [
             self.browserLib.get_element_attribute(
@@ -163,20 +186,24 @@ class SearchPage:
             " ", "").lower() for item in notFoundItems]
         expectedSelectedItems = [
             item for item in formattedItems if item not in notFoundItemsFormatted]
+
         # Verify
         assert len(set(expectedSelectedItems).intersection(selectedItemsLabels)) == len(
             expectedSelectedItems), f"Selected {type} items doesn't match"
 
     def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
+
         # Parse dates from current url guery params
         currentUrl = urlparse(self.browserLib.get_location())
         queryParams = parse_qs(currentUrl.query)
         parsedStartDateQuery = queryParams.get('startDate', [''])[0]
         parsedEndDateQuery = queryParams.get('endDate', [''])[0]
+
         # Validate date range from query params
         assert parsedStartDateQuery == startDateQueryString, "Start date doesn't match"
         assert parsedEndDateQuery == endDateQueryString, "End date doesn't match"
+
         # Validate date range from UI
         matched = self.__parse_and_verify_date_range_from_ui(
             startDateInputString, endDateInputString)
@@ -188,24 +215,30 @@ class SearchPage:
 
     def __parse_and_verify_date_range_from_ui(self, startDateInputString: str, endDateInputString: str) -> bool:
         """Find, parse and validate date range from UI"""
+
         # Define selectors
         dateRangeSelector = 'css:div.query-facet-date button[facet-name="date"]'
+
         # Get date range from UI element
         dateRangeValue = self.browserLib.get_element_attribute(
             dateRangeSelector, 'value'
         )
+
         # Parse start and end dates
         parsedStartDate = re.search(
             "^\d{2}/\d{2}/\d{4}", dateRangeValue).group()
         parsedEndDate = re.search(
             "\d{2}/\d{2}/\d{4}$", dateRangeValue).group()
+
         # Validate
         matched = startDateInputString == parsedStartDate and endDateInputString == parsedEndDate
         return matched
 
     def __expand_all_elements(self, showMoreButtonSelector, searchResultsSelector):
         """Find and click `Show Button` until it displayed to expand all the elements."""
+
         self.browserLib.mouse_over(showMoreButtonSelector)
+
         # Expand all elements
         while self.browserLib.is_element_visible(showMoreButtonSelector):
             try:
@@ -223,6 +256,7 @@ class SearchPage:
 
     def __get_unique_elements(self, searchResultItems, searchResultLinkSelector):
         """Extract url subelements, remove query params and filter element by it to get only unique element."""
+
         # Make Tuple with urls
         tupleItems = [
             (
@@ -232,6 +266,7 @@ class SearchPage:
             )
             for element in searchResultItems
         ]
+
         # Filter by unique url
         firstItem = tupleItems.pop(0)
         uniqueTupleItems = [firstItem]
@@ -244,6 +279,7 @@ class SearchPage:
 
     def __get_clean_url(self, element) -> str:
         """Parse url from `element` and remove query params."""
+
         url = urlunparse(list(urlparse(self.browserLib.get_element_attribute(
             element, "href"))[:3]) + ['', '', ''])
         return url

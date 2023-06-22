@@ -9,15 +9,16 @@ class HomePage:
     def __init__(self, browserLib: Selenium):
         self.browserLib = browserLib
 
-    # Navigate
     def lend_first_page(self):
+        """Navigate to home page."""
+
         self.browserLib.open_available_browser(const.BASE_URL)
         title = self.browserLib.get_title()
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + \
             self.browserLib.get_location()
 
-    # Search query
     def enter_search_query(self, query):
+        """Enter search query."""
         try:
             # Define selectors
             searchButton = 'css:[data-test-id="search-button"]'

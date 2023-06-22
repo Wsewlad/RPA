@@ -11,6 +11,7 @@ from common.Dates import get_date_range
 
 def main():
     try:
+        # Retrieve work items
         library = WorkItems()
         library.get_input_work_item()
         variables = library.get_work_item_variables()
@@ -21,15 +22,16 @@ def main():
         numberOfMonth: int = variables["number_of_month"] | 0
         startDate, endDate = get_date_range(numberOfMonth)
 
+        # Init browser lib
         browserLib: Selenium = Selenium()
         browserLib.auto_close = False
 
-        # Home page
+        # Home page logic
         homePage = HomePage(browserLib)
         homePage.lend_first_page()
         homePage.enter_search_query(searchPhrase)
 
-        # Search page
+        # Search page logic
         searchPage = SearchPage(browserLib)
 
         if len(categories) > 0:
