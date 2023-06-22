@@ -20,68 +20,30 @@ class SearchPage:
         """Set date range."""
         try:
             # Define selectors
-            searchDateDropdown = 'css:[data-testid="search-date-dropdown-a"]'
-            specificDates = 'css:[value="Specific Dates"]'
-            dateRangeStartDate = 'css:[data-testid="DateRange-startDate"]'
-            dateRangeEndDate = 'css:[data-testid="DateRange-endDate"]'
-            dateRange = 'css:div.query-facet-date button[facet-name="date"]'
+            searchDateDropdownSelector = 'css:[data-testid="search-date-dropdown-a"]'
+            specificDatesSelector = 'css:[value="Specific Dates"]'
+            dateRangeStartDateSelector = 'css:[data-testid="DateRange-startDate"]'
+            dateRangeEndDateSelector = 'css:[data-testid="DateRange-endDate"]'
 
             # Navigate to date range picker
-            self.browserLib.click_element(searchDateDropdown)
-            self.browserLib.click_element(specificDates)
+            self.browserLib.click_element(searchDateDropdownSelector)
+            self.browserLib.click_element(specificDatesSelector)
 
-            # Set dates
+            # Get date strings in appropriate format
             startDateInputString = startDate.strftime(Const.DATE_INPUT_FORMAT)
             endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
-
+            startDateQueryString = startDate.strftime(Const.DATE_QUERY_FORMAT)
+            endDateQueryString = endDate.strftime(Const.DATE_QUERY_FORMAT)
+            # Input dates
             self.browserLib.input_text(
-                dateRangeStartDate, startDateInputString
+                dateRangeStartDateSelector, startDateInputString
             )
-            self.browserLib.input_text(dateRangeEndDate, endDateInputString)
-            self.browserLib.press_keys(dateRangeEndDate, "ENTER")
-
-            # Parse dates from current url guery params
-            currentUrl = urlparse(self.browserLib.get_location())
-            queryParams = parse_qs(currentUrl.query)
-            parsedStartDateQuery = queryParams.get('startDate', [''])[0]
-            parsedEndDateQuery = queryParams.get('endDate', [''])[0]
-
-            # Add additional dates validation with page reload
-            dateRangeValue = self.browserLib.get_element_attribute(
-                dateRange, 'value'
-            )
-            print(dateRangeValue)
-            parsedStartDate = re.search(
-                "^\d{2}/\d{2}/\d{4}", dateRangeValue).group()
-            parsedEndDate = re.search(
-                "\d{2}/\d{2}/\d{4}$", dateRangeValue).group()
-            matched = startDateInputString == parsedStartDate and endDateInputString == parsedEndDate
-            print(matched)
-            if matched != dateRangeValue:
-                self.browserLib.reload_page()
-                # self.browserLib.wait_until_element_contains(
-                #     dateRange, startDateInputString)
-                # self.browserLib.wait_until_element_contains(
-                #     dateRange, endDateInputString)
-
-            dateRangeValue = self.browserLib.get_element_attribute(
-                dateRange, 'value'
-            )
-            print(dateRangeValue)
-            parsedStartDate = re.search(
-                "^\d{2}/\d{2}/\d{4}", dateRangeValue).group()
-            parsedEndDate = re.search(
-                "\d{2}/\d{2}/\d{4}$", dateRangeValue).group()
-
-            matched = startDateInputString == parsedStartDate and endDateInputString == parsedEndDate
-            print(matched)
-
+            self.browserLib.input_text(
+                dateRangeEndDateSelector, endDateInputString)
+            self.browserLib.press_keys(dateRangeEndDateSelector, "ENTER")
             # Validate selected dates
-            assert parsedStartDateQuery == startDate.strftime(
-                Const.DATE_QUERY_FORMAT), "Start date doesn't match"
-            assert parsedEndDateQuery == endDate.strftime(
-                Const.DATE_QUERY_FORMAT), "End date doesn't match"
-
+            self.__verify_date_entries(
+                startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
         except Exception as e:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
@@ -113,6 +75,42 @@ class SearchPage:
             raise Exception(f'[{self.__class__.__name__}]', e)
 
     # Helper Methods
+
+    def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
+        """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
+        # Parse dates from current url guery params
+        currentUrl = urlparse(self.browserLib.get_location())
+        queryParams = parse_qs(currentUrl.query)
+        parsedStartDateQuery = queryParams.get('startDate', [''])[0]
+        parsedEndDateQuery = queryParams.get('endDate', [''])[0]
+        # Validate date range from query params
+        assert parsedStartDateQuery == startDateQueryString, "Start date doesn't match"
+        assert parsedEndDateQuery == endDateQueryString, "End date doesn't match"
+        # Validate date range from UI
+        matched = self.__parse_and_verify_date_range_from_ui(
+            startDateInputString, endDateInputString)
+        if not matched:
+            self.browserLib.reload_page()
+        matched = self.__parse_and_verify_date_range_from_ui(
+            startDateInputString, endDateInputString)
+        assert matched, "Date range from UI doesn't match"
+
+    def __parse_and_verify_date_range_from_ui(self, startDateInputString: str, endDateInputString: str) -> bool:
+        """Find, parse and validate date range from UI"""
+        # Define selectors
+        dateRangeSelector = 'css:div.query-facet-date button[facet-name="date"]'
+        # Get date range from UI element
+        dateRangeValue = self.browserLib.get_element_attribute(
+            dateRangeSelector, 'value'
+        )
+        # Parse start and end dates
+        parsedStartDate = re.search(
+            "^\d{2}/\d{2}/\d{4}", dateRangeValue).group()
+        parsedEndDate = re.search(
+            "\d{2}/\d{2}/\d{4}$", dateRangeValue).group()
+        # Validate
+        matched = startDateInputString == parsedStartDate and endDateInputString == parsedEndDate
+        return matched
 
     def __expand_all_elements(self, showMoreButtonSelector, searchResultsSelector):
         """Find and click `Show Button` until it displayed to expand all the elements."""
