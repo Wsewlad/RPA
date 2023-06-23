@@ -120,17 +120,17 @@ class SearchPage:
     def sort_by_newest(self):
         """Sort articles by newest."""
         # Define selectors
-        sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
+        sort_by_selector = 'css:[data-testid="SearchForm-sortBy"]'
 
         # Select
-        valueToSelect = 'newest'
-        self.browserLib.select_from_list_by_value(
-            sortBySelector, valueToSelect)
+        value_to_select = 'newest'
+        self.browser_lib.select_from_list_by_value(
+            sort_by_selector, value_to_select)
 
         # Verify
-        sortByElementValue = self.browserLib.get_selected_list_value(
-            sortBySelector)
-        assert sortByElementValue == valueToSelect
+        sort_by_element_value = self.browser_lib.get_selected_list_value(
+            sort_by_selector)
+        assert sort_by_element_value == value_to_select
 
     @exception_decorator("Expand And Get All Articles")
     @step_logger_decorator("Expand And Get All Articles")
