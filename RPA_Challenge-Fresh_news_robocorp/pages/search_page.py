@@ -10,12 +10,12 @@ from common.Decorators import exception_decorator, step_logger_decorator
 
 class SearchPage:
 
-    def __init__(self, browserLib: Selenium):
-        self.browserLib = browserLib
-        title = self.browserLib.get_title()
+    def __init__(self, browser_lib: Selenium):
+        self.browser_lib = browser_lib
+        title = self.browser_lib.get_title()
         assert title == "The New York Times - Search", "This is not Search Page, current page is - " + \
-            self.browserLib.get_location()
-        self.browserLib.delete_all_cookies()
+            self.browser_lib.get_location()
+        self.browser_lib.delete_all_cookies()
 
     @exception_decorator("Set Date Range")
     @step_logger_decorator("Set Date Range")
