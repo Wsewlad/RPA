@@ -2,19 +2,19 @@ import datetime
 
 
 def get_date_range(months):
-    currentDate = datetime.date.today()
-    currentYear = currentDate.year
-    currentMonth = currentDate.month
+    current_date = datetime.date.today()
+    current_year = current_date.year
+    current_month = current_date.month
 
-    startDate = datetime.date(currentYear, currentMonth, 1)
-    endDate = currentDate
+    start_date = datetime.date(current_year, current_month, 1)
+    end_date = current_date
 
     if months > 0:
         for i in range(1, months):
-            prevMonth = currentMonth - i
-            if prevMonth <= 0:
-                prevMonth += 12
-                currentYear -= 1
-            startDate = datetime.date(currentYear, prevMonth, 1)
+            prev_month = current_month - i
+            if prev_month <= 0:
+                prev_month += 12
+                current_year -= 1
+            start_date = datetime.date(current_year, prev_month, 1)
 
-    return startDate, endDate
+    return start_date, end_date
