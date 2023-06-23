@@ -71,8 +71,8 @@ def main():
         variables = library.get_work_item_variables()
 
         searchPhrase: str = variables["search_phrase"]
-        categories: list[str] = variables.get("categories", [])
-        sections: list[str] = variables.get("sections", [])
+        categories: list = variables.get("categories", [])
+        sections: list = variables.get("sections", [])
         numberOfMonth: int = variables.get("number_of_month", 0)
         startDate, endDate = get_date_range(numberOfMonth)
 

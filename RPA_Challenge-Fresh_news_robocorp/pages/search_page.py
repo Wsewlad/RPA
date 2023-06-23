@@ -1,7 +1,6 @@
 # import RPA modules
 from RPA.Browser.Selenium import Selenium
 # import system modules
-import sys
 from urllib.parse import urlparse, parse_qs, urlunparse
 import re
 # import custom modules
@@ -22,7 +21,6 @@ class SearchPage:
     @step_logger_decorator("Set Date Range")
     def set_date_range(self, startDate, endDate):
         """Set date range."""
-        # try:
         # Define selectors
         searchDateDropdownSelector = 'css:[data-testid="search-date-dropdown-a"]'
         specificDatesSelector = 'css:[value="Specific Dates"]'
@@ -111,7 +109,7 @@ class SearchPage:
                     checkboxByValue[formattedCategory])
             except:
                 notFoundItems.append(category)
-        print("Not found: ", notFoundItems)
+        print("Unknown filters: ", notFoundItems)
 
         # Verify selected items
         self.__verify_selected_items(
@@ -155,12 +153,12 @@ class SearchPage:
         searchResultItems = self.browserLib.find_elements(
             searchResultSelector, searchResultList
         )
-        print("count: " + str(len(searchResultItems)))
+        print("All articles count: " + str(len(searchResultItems)))
 
         # Get unique elements
         uniqueElements = self.__get_unique_elements(
             searchResultItems, searchResultLinkSelector)
-        print("unique count: " + str(len(uniqueElements)))
+        print("Unique articles count: " + str(len(uniqueElements)))
         return uniqueElements
 
     @exception_decorator("Parse Article Data")
