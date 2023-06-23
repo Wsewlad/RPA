@@ -1,4 +1,5 @@
 # import RPA modules
+import sys
 from RPA.Browser.Selenium import Selenium
 # import system modules
 from urllib.parse import urlparse, parse_qs, urlunparse
@@ -48,17 +49,17 @@ class SearchPage:
                 startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
 
         except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]', e)
+            raise Exception(f'[{self.__class__.__name__}]',
+                            e, sys.exc_info()[-1].tb_lineno)
 
     def set_filters(self, items: list[str], type: str):
         """Set filters and verify if selected."""
         try:
             if type not in ['type', 'section']:
-                raise Exception(f'[{self.__class__.__name__}]',
-                                f"Undefined filter type: {type}")
+                raise Exception(f"Undefined filter type: {type}")
 
             # Define selectors
-            formSelector = 'css:[role="form"][data-testid="{}"]'.format(type)
+            formSelector = f'css:[role="form"][data-testid="{type}"]'
             buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
             dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
             checkboxSelector = 'css:input[type="checkbox"]'
@@ -79,17 +80,24 @@ class SearchPage:
                 checkboxSelector, dropdownListElement)
             checkboxByValue: dict[str, any] = dict([
                 (
-                    self.browserLib.get_element_attribute(checkbox, 'value').split('|nyt:', 1)[0].replace(
-                        " ", "").lower(),
+                    self.__format_item(
+                        self.browserLib.get_element_attribute(
+                            checkbox, 'value'
+                        ).split('|nyt:', 1)[0]
+                    ),
                     checkbox
                 )
                 for checkbox in checkboxElements
             ])
 
-            # If categories contains `Any`` - skip selecting
+            # If categories contains `Any` - skip selecting
             uniqueItems = set(items)
-            formattedItems = set([category.replace(
-                " ", "").lower() for category in uniqueItems])
+            formattedItems = set(
+                [
+                    self.__format_item(category)
+                    for category in uniqueItems
+                ]
+            )
             if "any" in formattedItems:
                 return
 
@@ -97,7 +105,7 @@ class SearchPage:
             notFoundItems = []
             for category in uniqueItems:
                 try:
-                    formattedCategory = category.replace(" ", "").lower()
+                    formattedCategory = self.__format_item(category)
                     self.browserLib.click_element(
                         checkboxByValue[formattedCategory])
                 except:
@@ -108,7 +116,8 @@ class SearchPage:
             self.__verify_selected_items(
                 notFoundItems, formattedItems, type)
         except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]', e)
+            raise Exception(f'[{self.__class__.__name__}]',
+                            e, sys.exc_info()[-1].tb_lineno)
 
     def sort_by_newest(self):
         """Sort articles by newest."""
@@ -126,9 +135,10 @@ class SearchPage:
                 sortBySelector)
             assert sortByElementValue == valueToSelect
         except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]', e)
+            raise Exception(f'[{self.__class__.__name__}]',
+                            e, sys.exc_info()[-1].tb_lineno)
 
-    def expand_and_count_all_results(self):
+    def expand_and_get_all_articles(self) -> list[tuple[any, str]]:
         """Expand and count all results."""
         try:
             # Define selectors
@@ -154,11 +164,46 @@ class SearchPage:
             uniqueElements = self.__get_unique_elements(
                 searchResultItems, searchResultLinkSelector)
             print("unique count: " + str(len(uniqueElements)))
+            return uniqueElements
 
         except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]', e)
+            raise Exception(f'[{self.__class__.__name__}]',
+                            e, sys.exc_info()[-1].tb_lineno)
+
+    def parse_article_data(self, articleElement):
+        """Parse article's data"""
+        try:
+            # Define selectors
+            dateSelector = 'css:[data-testid="todays-date"]'
+            titleSelector = 'css:a > h4'
+            descriptionSelector = 'css:a p:nth-child(2)'
+            imageSelector = 'css:img'
+
+            # Get data
+            dateElement = self.browserLib.find_element(
+                dateSelector, articleElement)
+            date = self.browserLib.get_text(dateElement)
+            titleElement = self.browserLib.find_element(
+                titleSelector, articleElement)
+            title = self.browserLib.get_text(titleElement)
+            descriptionElement = self.browserLib.find_element(
+                descriptionSelector, articleElement)
+            description = self.browserLib.get_text(descriptionElement)
+            imageElement = self.browserLib.find_element(
+                imageSelector, articleElement)
+            imageUrl = self.__get_clean_url(
+                self.browserLib.get_element_attribute(imageElement, 'src')
+            )
+
+            return title, date, description, imageUrl
+        except Exception as e:
+            raise Exception(f'[{self.__class__.__name__}]',
+                            e, sys.exc_info()[-1].tb_lineno)
 
     # Helper Methods
+
+    def __format_item(self, item: str) -> str:
+        return item.replace(" ", "").lower()
 
     def __verify_selected_items(self, notFoundItems, formattedItems, type: str):
         """Verify selected items."""
@@ -177,13 +222,12 @@ class SearchPage:
 
         # Get element values
         selectedItemsLabels = [
-            self.browserLib.get_element_attribute(
-                category, 'value').split('|nyt:', 1)[0].replace(
-                " ", "").lower()
+            self.__format_item(self.browserLib.get_element_attribute(
+                category, 'value').split('|nyt:', 1)[0])
             for category in selectedItemElements
         ]
-        notFoundItemsFormatted = [item.replace(
-            " ", "").lower() for item in notFoundItems]
+        notFoundItemsFormatted = [
+            self.__format_item(item) for item in notFoundItems]
         expectedSelectedItems = [
             item for item in formattedItems if item not in notFoundItemsFormatted]
 
@@ -254,15 +298,20 @@ class SearchPage:
             searchResultsSelector, timeout=10
         )
 
-    def __get_unique_elements(self, searchResultItems, searchResultLinkSelector):
+    def __get_unique_elements(self, searchResultItems, searchResultLinkSelector) -> list[tuple[any, str]]:
         """Extract url subelements, remove query params and filter element by it to get only unique element."""
 
         # Make Tuple with urls
         tupleItems = [
             (
                 element,
-                self.__get_clean_url(self.browserLib.find_element(
-                    searchResultLinkSelector, element))
+                self.__get_clean_url(
+                    self.browserLib.get_element_attribute(
+                        self.browserLib.find_element(
+                            searchResultLinkSelector, element),
+                        'href'
+                    )
+                )
             )
             for element in searchResultItems
         ]
@@ -277,9 +326,8 @@ class SearchPage:
                 seenUrls.add(item[1])
         return uniqueTupleItems
 
-    def __get_clean_url(self, element) -> str:
+    def __get_clean_url(self, url) -> str:
         """Parse url from `element` and remove query params."""
 
-        url = urlunparse(list(urlparse(self.browserLib.get_element_attribute(
-            element, "href"))[:3]) + ['', '', ''])
-        return url
+        cleanUrl = urlunparse(list(urlparse(url)[:3]) + ['', '', ''])
+        return cleanUrl

@@ -7,21 +7,10 @@
         "Audio",
         "Image Slideshow",
         "Interactive Graphics",
-        "Recipe",
-        "Video",
-        "Wirecutterarticle",
         "Something"
       ],
       "sections": [
-        "Arts",
-        "Briefing",
-        "Business",
-        "Multimedia/Photos",
-        "New York",
-        "Opinion",
-        "Sports",
-        "U.S.",
-        "World"
+        "Opinion"
       ],
       "number_of_month": 0
     },
