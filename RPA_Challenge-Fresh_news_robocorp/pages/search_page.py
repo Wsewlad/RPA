@@ -19,35 +19,35 @@ class SearchPage:
 
     @exception_decorator("Set Date Range")
     @step_logger_decorator("Set Date Range")
-    def set_date_range(self, startDate, endDate):
+    def set_date_range(self, start_date, end_date):
         """Set date range."""
         # Define selectors
-        searchDateDropdownSelector = 'css:[data-testid="search-date-dropdown-a"]'
-        specificDatesSelector = 'css:[value="Specific Dates"]'
-        dateRangeStartDateSelector = 'css:[data-testid="DateRange-startDate"]'
-        dateRangeEndDateSelector = 'css:[data-testid="DateRange-endDate"]'
+        search_date_dropdown_selector = 'css:[data-testid="search-date-dropdown-a"]'
+        specific_dates_selector = 'css:[value="Specific Dates"]'
+        date_range_start_date_selector = 'css:[data-testid="DateRange-startDate"]'
+        date_range_end_date_selector = 'css:[data-testid="DateRange-endDate"]'
 
         # Navigate to date range picker
-        self.browserLib.click_element(searchDateDropdownSelector)
-        self.browserLib.click_element(specificDatesSelector)
+        self.browser_lib.click_element(search_date_dropdown_selector)
+        self.browser_lib.click_element(specific_dates_selector)
 
         # Get date strings in appropriate format
-        startDateInputString = startDate.strftime(Const.DATE_INPUT_FORMAT)
-        endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
-        startDateQueryString = startDate.strftime(Const.DATE_QUERY_FORMAT)
-        endDateQueryString = endDate.strftime(Const.DATE_QUERY_FORMAT)
+        start_date_input_string = start_date.strftime(Const.DATE_INPUT_FORMAT)
+        end_date_input_string = end_date.strftime(Const.DATE_INPUT_FORMAT)
+        start_date_query_string = start_date.strftime(Const.DATE_QUERY_FORMAT)
+        end_date_query_string = end_date.strftime(Const.DATE_QUERY_FORMAT)
 
         # Input dates
-        self.browserLib.input_text(
-            dateRangeStartDateSelector, startDateInputString
+        self.browser_lib.input_text(
+            date_range_start_date_selector, start_date_input_string
         )
-        self.browserLib.input_text(
-            dateRangeEndDateSelector, endDateInputString)
-        self.browserLib.press_keys(dateRangeEndDateSelector, "ENTER")
+        self.browser_lib.input_text(
+            date_range_end_date_selector, end_date_input_string)
+        self.browser_lib.press_keys(date_range_end_date_selector, "ENTER")
 
         # Validate selected dates
         self.__verify_date_entries(
-            startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
+            start_date_input_string, end_date_input_string, start_date_query_string, end_date_query_string)
 
     @exception_decorator("Set Filters")
     @step_logger_decorator("Set Filters")
