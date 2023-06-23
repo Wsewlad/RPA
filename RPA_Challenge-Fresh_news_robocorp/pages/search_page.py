@@ -137,29 +137,29 @@ class SearchPage:
     def expand_and_get_all_articles(self) -> list[tuple[any, str]]:
         """Expand and count all results."""
         # Define selectors
-        showMoreButtonSelector = 'css:[data-testid="search-show-more-button"]'
-        searchResultsSelector = 'css:[data-testid="search-results"]'
-        searchResultSelector = 'css:[data-testid="search-bodega-result"]'
-        searchResultLinkSelector = 'css:[data-testid="search-bodega-result"] a'
+        show_more_button_selector = 'css:[data-testid="search-show-more-button"]'
+        search_results_selector = 'css:[data-testid="search-results"]'
+        search_result_selector = 'css:[data-testid="search-bodega-result"]'
+        search_result_link_selector = 'css:[data-testid="search-bodega-result"] a'
 
         # Expand all elements
         self.__expand_all_elements(
-            showMoreButtonSelector, searchResultsSelector
+            show_more_button_selector, search_results_selector
         )
 
         # Get all elements
-        searchResultList = self.browserLib.find_element(
-            searchResultsSelector)
-        searchResultItems = self.browserLib.find_elements(
-            searchResultSelector, searchResultList
+        search_result_list = self.browser_lib.find_element(
+            search_results_selector)
+        search_result_items = self.browser_lib.find_elements(
+            search_result_selector, search_result_list
         )
-        print("All articles count: " + str(len(searchResultItems)))
+        print("All articles count: " + str(len(search_result_items)))
 
         # Get unique elements
-        uniqueElements = self.__get_unique_elements(
-            searchResultItems, searchResultLinkSelector)
-        print("Unique articles count: " + str(len(uniqueElements)))
-        return uniqueElements
+        unique_elements = self.__get_unique_elements(
+            search_result_items, search_result_link_selector)
+        print("Unique articles count: " + str(len(unique_elements)))
+        return unique_elements
 
     @exception_decorator("Parse Article Data")
     def parse_article_data(self, articleElement):
