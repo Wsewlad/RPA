@@ -22,10 +22,10 @@ def contains_money(title, description) -> bool:
 
 
 def get_file_name_from_url(url):
-    """Get file name from url."""
-    parsedUrl = urlparse(url)
-    fileName = os.path.basename(parsedUrl.path)
-    return fileName
+    """Get file name from URL."""
+    parsed_url = urlparse(url)
+    file_name = os.path.basename(parsed_url.path)
+    return file_name
 
 
 def download_picture(url: str, path: str):

@@ -9,8 +9,8 @@ def exception_decorator(step_name=None):
                 if source is None:
                     source = f"{func.__module__}.{func.__name__}"
                 step = step_name or source
-                errorMsg = f'[{step}] {str(e)}'
-                raise Exception(errorMsg)
+                error_msg = f'[{step}] {str(e)}'
+                raise Exception(error_msg)
         return wrapper
     return decorator
 
