@@ -162,37 +162,37 @@ class SearchPage:
         return unique_elements
 
     @exception_decorator("Parse Article Data")
-    def parse_article_data(self, articleElement):
+    def parse_article_data(self, article_element):
         """Parse article's data"""
         # Define selectors
-        dateSelector = 'css:[data-testid="todays-date"]'
-        titleSelector = 'css:a > h4'
-        descriptionSelector = 'css:a p:nth-child(2)'
-        imageSelector = 'css:img'
+        date_selector = 'css:[data-testid="todays-date"]'
+        title_selector = 'css:a > h4'
+        description_selector = 'css:a p:nth-child(2)'
+        image_selector = 'css:img'
 
         # Get data
-        dateElement = self.browserLib.find_element(
-            dateSelector, articleElement)
-        date = self.browserLib.get_text(dateElement)
-        titleElement = self.browserLib.find_element(
-            titleSelector, articleElement)
-        title = self.browserLib.get_text(titleElement)
+        date_element = self.browser_lib.find_element(
+            date_selector, article_element)
+        date = self.browser_lib.get_text(date_element)
+        title_element = self.browser_lib.find_element(
+            title_selector, article_element)
+        title = self.browser_lib.get_text(title_element)
         try:
-            descriptionElement = self.browserLib.find_element(
-                descriptionSelector, articleElement)
-            description = self.browserLib.get_text(descriptionElement)
+            description_element = self.browser_lib.find_element(
+                description_selector, article_element)
+            description = self.browser_lib.get_text(description_element)
         except:
             description = None
         try:
-            imageElement = self.browserLib.find_element(
-                imageSelector, articleElement)
-            imageUrl = self.__get_clean_url(
-                self.browserLib.get_element_attribute(imageElement, 'src')
+            image_element = self.browser_lib.find_element(
+                image_selector, article_element)
+            image_url = self.__get_clean_url(
+                self.browser_lib.get_element_attribute(image_element, 'src')
             )
         except:
-            imageUrl = None
+            image_url = None
 
-        return title, date, description, imageUrl
+        return title, date, description, image_url
 
     # Helper Methods
 
