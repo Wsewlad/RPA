@@ -28,29 +28,29 @@ def make_row(date, title, description, pictureUrl, searchPhrase):
 
 
 @step_logger_decorator("Create And Fill Excel File")
-def create_and_fill_excel_file(searchPage, searchPhrase, articles):
+def create_and_fill_excel_file(search_page, search_phrase, articles):
     """Parse articles data and create excel file with it. Download article pictures."""
     try:
-        excelLib = Files()
-        excelLib.create_workbook(
+        excel_lib = Files()
+        excel_lib.create_workbook(
             path=os.path.join('output', 'articles.xlsx'), fmt="xlsx", sheet_name="NYT")
         data = []
         for article in articles:
             try:
                 # Parse article data
-                title, date, description, pictureUrl = searchPage.parse_article_data(
+                title, date, description, picture_url = search_page.parse_article_data(
                     article[0])
                 # Download picture
-                if pictureUrl:
+                if picture_url:
                     helpers.download_picture(
-                        pictureUrl, os.path.join('output', 'images'))
+                        picture_url, os.path.join('output', 'images'))
                 else:
                     print(f'No picture found for: {title}')
                 if not description:
                     print(f'No description found for: {title}')
                 # Create and append article data row
                 row = make_row(
-                    date, title, description, pictureUrl, searchPhrase
+                    date, title, description, picture_url, search_phrase
                 )
                 data.append(row)
             except Exception as e:
@@ -59,8 +59,8 @@ def create_and_fill_excel_file(searchPage, searchPhrase, articles):
         print("Failed collecting articles data", e)
     finally:
         # Save data
-        excelLib.append_rows_to_worksheet(data, header=True)
-        excelLib.save_workbook()
+        excel_lib.append_rows_to_worksheet(data, header=True)
+        excel_lib.save_workbook()
 
 
 def main():
