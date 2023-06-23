@@ -272,24 +272,24 @@ class SearchPage:
         matched = start_date_input_string == parsed_start_date and end_date_input_string == parsed_end_date
         return matched
 
-    def __expand_all_elements(self, showMoreButtonSelector, searchResultsSelector):
-        """Find and click `Show Button` until it displayed to expand all the elements."""
+    def __expand_all_elements(self, show_more_button_selector, search_results_selector):
+        """Find and click `Show Button` until it is displayed to expand all the elements."""
 
-        self.browserLib.mouse_over(showMoreButtonSelector)
+        self.browser_lib.mouse_over(show_more_button_selector)
 
         # Expand all elements
-        while self.browserLib.is_element_visible(showMoreButtonSelector):
+        while self.browser_lib.is_element_visible(show_more_button_selector):
             try:
-                self.browserLib.click_element_when_clickable(
-                    showMoreButtonSelector, timeout=10)
-                self.browserLib.mouse_over(showMoreButtonSelector)
-                # self.browserLib.click_button(showMoreButton)
+                self.browser_lib.click_element_when_clickable(
+                    show_more_button_selector, timeout=10)
+                self.browser_lib.mouse_over(show_more_button_selector)
+                # self.browser_lib.click_button(show_more_button)
             except:
                 print("No more Show Button")
                 break
 
-        self.browserLib.wait_until_element_is_enabled(
-            searchResultsSelector, timeout=10
+        self.browser_lib.wait_until_element_is_enabled(
+            search_results_selector, timeout=10
         )
 
     def __get_unique_elements(self, searchResultItems, searchResultLinkSelector) -> list[tuple[any, str]]:
