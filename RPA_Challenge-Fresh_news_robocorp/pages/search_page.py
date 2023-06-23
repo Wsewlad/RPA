@@ -199,35 +199,35 @@ class SearchPage:
     def __format_item(self, item: str) -> str:
         return item.replace(" ", "").lower()
 
-    def __verify_selected_items(self, notFoundItems, formattedItems, type: str):
+    def __verify_selected_items(self, not_found_items, formatted_items, type):
         """Verify selected items."""
 
         # Define selectors
-        selectedItemContainerSelector = f'css:div.query-facet-{type}s'
-        selectedItemSelector = f'css:button[facet-name="{type}s"]'
+        selected_item_container_selector = f'css:div.query-facet-{type}s'
+        selected_item_selector = f'css:button[facet-name="{type}s"]'
 
         # Find container
-        selectedItemsContainerElement = self.browserLib.find_element(
-            selectedItemContainerSelector)
+        selected_items_container_element = self.browser_lib.find_element(
+            selected_item_container_selector)
 
         # Find elements
-        selectedItemElements = self.browserLib.find_elements(
-            selectedItemSelector, selectedItemsContainerElement)
+        selected_item_elements = self.browser_lib.find_elements(
+            selected_item_selector, selected_items_container_element)
 
         # Get element values
-        selectedItemsLabels = [
-            self.__format_item(self.browserLib.get_element_attribute(
+        selected_items_labels = [
+            self.__format_item(self.browser_lib.get_element_attribute(
                 category, 'value').split('|nyt:', 1)[0])
-            for category in selectedItemElements
+            for category in selected_item_elements
         ]
-        notFoundItemsFormatted = [
-            self.__format_item(item) for item in notFoundItems]
-        expectedSelectedItems = [
-            item for item in formattedItems if item not in notFoundItemsFormatted]
+        not_found_items_formatted = [
+            self.__format_item(item) for item in not_found_items]
+        expected_selected_items = [
+            item for item in formatted_items if item not in not_found_items_formatted]
 
         # Verify
-        assert len(set(expectedSelectedItems).intersection(selectedItemsLabels)) == len(
-            expectedSelectedItems), f"Selected {type} items doesn't match"
+        assert len(set(expected_selected_items).intersection(selected_items_labels)) == len(
+            expected_selected_items), f"Selected {type} items don't match"
 
     def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
