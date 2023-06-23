@@ -321,7 +321,7 @@ class SearchPage:
         return unique_tuple_items
 
     def __get_clean_url(self, url) -> str:
-        """Remove query params from url."""
+        """Remove query parameters from URL."""
 
-        cleanUrl = urlunparse(list(urlparse(url)[:3]) + ['', '', ''])
-        return cleanUrl
+        clean_url = urlunparse(list(urlparse(url)[:3]) + ['', '', ''])
+        return clean_url
