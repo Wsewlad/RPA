@@ -229,26 +229,26 @@ class SearchPage:
         assert len(set(expected_selected_items).intersection(selected_items_labels)) == len(
             expected_selected_items), f"Selected {type} items don't match"
 
-    def __verify_date_entries(self, startDateInputString: str, endDateInputString: str, startDateQueryString: str, endDateQueryString: str):
+    def __verify_date_entries(self, start_date_input_string: str, end_date_input_string: str, start_date_query_string: str, end_date_query_string: str):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
 
-        # Parse dates from current url guery params
-        currentUrl = urlparse(self.browserLib.get_location())
-        queryParams = parse_qs(currentUrl.query)
-        parsedStartDateQuery = queryParams.get('startDate', [''])[0]
-        parsedEndDateQuery = queryParams.get('endDate', [''])[0]
+        # Parse dates from current url query params
+        current_url = urlparse(self.browser_lib.get_location())
+        query_params = parse_qs(current_url.query)
+        parsed_start_date_query = query_params.get('startDate', [''])[0]
+        parsed_end_date_query = query_params.get('endDate', [''])[0]
 
         # Validate date range from query params
-        assert parsedStartDateQuery == startDateQueryString, "Start date doesn't match"
-        assert parsedEndDateQuery == endDateQueryString, "End date doesn't match"
+        assert parsed_start_date_query == start_date_query_string, "Start date doesn't match"
+        assert parsed_end_date_query == end_date_query_string, "End date doesn't match"
 
         # Validate date range from UI
         matched = self.__parse_and_verify_date_range_from_ui(
-            startDateInputString, endDateInputString)
+            start_date_input_string, end_date_input_string)
         if not matched:
-            self.browserLib.reload_page()
+            self.browser_lib.reload_page()
         matched = self.__parse_and_verify_date_range_from_ui(
-            startDateInputString, endDateInputString)
+            start_date_input_string, end_date_input_string)
         assert matched, "Date range from UI doesn't match"
 
     def __parse_and_verify_date_range_from_ui(self, startDateInputString: str, endDateInputString: str) -> bool:
