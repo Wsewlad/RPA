@@ -7,41 +7,41 @@ import constants as const
 
 class HomePage:
 
-    def __init__(self, browserLib: Selenium):
-        self.browserLib = browserLib
+    def __init__(self, browser_lib: Selenium):
+        self.browser_lib = browser_lib
 
     def lend_first_page(self):
         """Navigate to home page."""
 
-        self.browserLib.open_available_browser(const.BASE_URL)
-        title = self.browserLib.get_title()
+        self.browser_lib.open_available_browser(const.BASE_URL)
+        title = self.browser_lib.get_title()
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + \
-            self.browserLib.get_location()
+            self.browser_lib.get_location()
 
     @exception_decorator("Enter Search Query")
     @step_logger_decorator("Enter Search Query")
     def enter_search_query(self, query):
         """Enter search query."""
         # Define selectors
-        searchButton = 'css:[data-test-id="search-button"]'
-        searchInput = 'css:[data-testid="search-input"]'
-        searchSubmit = 'css:[data-test-id="search-submit"]'
-        searchTextField = 'searchTextField'
+        search_button = 'css:[data-test-id="search-button"]'
+        search_input = 'css:[data-testid="search-input"]'
+        search_submit = 'css:[data-test-id="search-submit"]'
+        search_text_field = 'searchTextField'
 
         # Type search query
-        self.browserLib.click_element(searchButton)
-        self.browserLib.input_text_when_element_is_visible(
-            searchInput, query
+        self.browser_lib.click_element(search_button)
+        self.browser_lib.input_text_when_element_is_visible(
+            search_input, query
         )
-        self.browserLib.click_element(searchSubmit)
+        self.browser_lib.click_element(search_submit)
 
         # Validate applied search query on the search page
-        self.browserLib.wait_until_page_contains_element(searchTextField)
-        searchTextFieldValue = self.browserLib.get_element_attribute(
-            searchTextField, 'value'
+        self.browser_lib.wait_until_page_contains_element(search_text_field)
+        search_text_field_value = self.browser_lib.get_element_attribute(
+            search_text_field, 'value'
         )
-        searchTextFieldMatched = self.browserLib.is_element_attribute_equal_to(
-            searchTextField, 'value', query
+        search_text_field_matched = self.browser_lib.is_element_attribute_equal_to(
+            search_text_field, 'value', query
         )
 
-        assert searchTextFieldMatched, f"Search text field value [{searchTextFieldValue}] doesn't match the query [{query}]"
+        assert search_text_field_matched, f"Search text field value [{search_text_field_value}] doesn't match the query [{query}]"
