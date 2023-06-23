@@ -1,5 +1,27 @@
+Start: [Enter Search Query]
+End: [Enter Search Query]
+Start: [Set Filters]
 Not found:  ['Something']
-Not found:  []
-count: 23
-unique count: 23
+End: [Set Filters]
+No sections
+Start: [Set Date Range]
+End: [Set Date Range]
+Start: [Sort By Newest]
+End: [Sort By Newest]
+Start: [Expand And Get All Articles]
+count: 418
+unique count: 348
+End: [Expand And Get All Articles]
+Start: [Create And Fill Excel File]
+No picture found for: Understanding Ukraine’s Counteroffensive
+No picture found for: Corrections: June 22, 2023
+No picture found for: The Re-Militarization of Germany
+No picture found for: Quotation of the Day: Hidden Horrors of Russian Treatment of P.O.W.s
+No picture found for: Corrections: June 20, 2023
+No picture found for: Transcript: Ezra Klein Interviews Jon Favreau
+No picture found for: Quotation of the Day: Every Block Is Another Battle for ‘the Cyborgs’ in Ukraine’s East
+No picture found for: Despite Calls for Protests, Trump Arraignment Draws Only Colorful Crowds
+No picture found for: A U.S. Citizen Has Been Arrested in Russia, State Department Says
+No picture found for: Transcript: Ezra Klein Interviews Fareed Zakaria
+End: [Create And Fill Excel File]
 End

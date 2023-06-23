@@ -1,11 +1,12 @@
 # import RPA modules
-import sys
 from RPA.Browser.Selenium import Selenium
 # import system modules
+import sys
 from urllib.parse import urlparse, parse_qs, urlunparse
 import re
 # import custom modules
 import constants as Const
+from common.Decorators import exception_decorator, step_logger_decorator
 
 
 class SearchPage:
@@ -17,188 +18,183 @@ class SearchPage:
             self.browserLib.get_location()
         self.browserLib.delete_all_cookies()
 
+    @exception_decorator("Set Date Range")
+    @step_logger_decorator("Set Date Range")
     def set_date_range(self, startDate, endDate):
         """Set date range."""
-        try:
-            # Define selectors
-            searchDateDropdownSelector = 'css:[data-testid="search-date-dropdown-a"]'
-            specificDatesSelector = 'css:[value="Specific Dates"]'
-            dateRangeStartDateSelector = 'css:[data-testid="DateRange-startDate"]'
-            dateRangeEndDateSelector = 'css:[data-testid="DateRange-endDate"]'
+        # try:
+        # Define selectors
+        searchDateDropdownSelector = 'css:[data-testid="search-date-dropdown-a"]'
+        specificDatesSelector = 'css:[value="Specific Dates"]'
+        dateRangeStartDateSelector = 'css:[data-testid="DateRange-startDate"]'
+        dateRangeEndDateSelector = 'css:[data-testid="DateRange-endDate"]'
 
-            # Navigate to date range picker
-            self.browserLib.click_element(searchDateDropdownSelector)
-            self.browserLib.click_element(specificDatesSelector)
+        # Navigate to date range picker
+        self.browserLib.click_element(searchDateDropdownSelector)
+        self.browserLib.click_element(specificDatesSelector)
 
-            # Get date strings in appropriate format
-            startDateInputString = startDate.strftime(Const.DATE_INPUT_FORMAT)
-            endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
-            startDateQueryString = startDate.strftime(Const.DATE_QUERY_FORMAT)
-            endDateQueryString = endDate.strftime(Const.DATE_QUERY_FORMAT)
+        # Get date strings in appropriate format
+        startDateInputString = startDate.strftime(Const.DATE_INPUT_FORMAT)
+        endDateInputString = endDate.strftime(Const.DATE_INPUT_FORMAT)
+        startDateQueryString = startDate.strftime(Const.DATE_QUERY_FORMAT)
+        endDateQueryString = endDate.strftime(Const.DATE_QUERY_FORMAT)
 
-            # Input dates
-            self.browserLib.input_text(
-                dateRangeStartDateSelector, startDateInputString
-            )
-            self.browserLib.input_text(
-                dateRangeEndDateSelector, endDateInputString)
-            self.browserLib.press_keys(dateRangeEndDateSelector, "ENTER")
+        # Input dates
+        self.browserLib.input_text(
+            dateRangeStartDateSelector, startDateInputString
+        )
+        self.browserLib.input_text(
+            dateRangeEndDateSelector, endDateInputString)
+        self.browserLib.press_keys(dateRangeEndDateSelector, "ENTER")
 
-            # Validate selected dates
-            self.__verify_date_entries(
-                startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
+        # Validate selected dates
+        self.__verify_date_entries(
+            startDateInputString, endDateInputString, startDateQueryString, endDateQueryString)
 
-        except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            e, sys.exc_info()[-1].tb_lineno)
-
+    @exception_decorator("Set Filters")
+    @step_logger_decorator("Set Filters")
     def set_filters(self, items: list[str], type: str):
         """Set filters and verify if selected."""
-        try:
-            if type not in ['type', 'section']:
-                raise Exception(f"Undefined filter type: {type}")
 
-            # Define selectors
-            formSelector = f'css:[role="form"][data-testid="{type}"]'
-            buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
-            dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
-            checkboxSelector = 'css:input[type="checkbox"]'
+        if type not in ['type', 'section']:
+            raise Exception(f"Undefined filter type: {type}")
 
-            # Open dropdown list
-            typeFormElement = self.browserLib.find_element(formSelector)
-            buttonElement = self.browserLib.find_element(
-                buttonSelector, typeFormElement)
-            self.browserLib.click_element(buttonElement)
+        # Define selectors
+        formSelector = f'css:[role="form"][data-testid="{type}"]'
+        buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
+        dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
+        checkboxSelector = 'css:input[type="checkbox"]'
 
-            # Wait for dropdown list
-            dropdownListElement = self.browserLib.find_element(
-                dropdownListSelector, typeFormElement)
-            self.browserLib.wait_until_element_is_visible(dropdownListElement)
+        # Open dropdown list
+        typeFormElement = self.browserLib.find_element(formSelector)
+        buttonElement = self.browserLib.find_element(
+            buttonSelector, typeFormElement)
+        self.browserLib.click_element(buttonElement)
 
-            # Find all checkbox elements and map it by value
-            checkboxElements = self.browserLib.find_elements(
-                checkboxSelector, dropdownListElement)
-            checkboxByValue: dict[str, any] = dict([
-                (
-                    self.__format_item(
-                        self.browserLib.get_element_attribute(
-                            checkbox, 'value'
-                        ).split('|nyt:', 1)[0]
-                    ),
-                    checkbox
-                )
-                for checkbox in checkboxElements
-            ])
+        # Wait for dropdown list
+        dropdownListElement = self.browserLib.find_element(
+            dropdownListSelector, typeFormElement)
+        self.browserLib.wait_until_element_is_visible(dropdownListElement)
 
-            # If categories contains `Any` - skip selecting
-            uniqueItems = set(items)
-            formattedItems = set(
-                [
-                    self.__format_item(category)
-                    for category in uniqueItems
-                ]
+        # Find all checkbox elements and map it by value
+        checkboxElements = self.browserLib.find_elements(
+            checkboxSelector, dropdownListElement)
+        checkboxByValue: dict[str, any] = dict([
+            (
+                self.__format_item(
+                    self.browserLib.get_element_attribute(
+                        checkbox, 'value'
+                    ).split('|nyt:', 1)[0]
+                ),
+                checkbox
             )
-            if "any" in formattedItems:
-                return
+            for checkbox in checkboxElements
+        ])
 
-            # Select items and save notFoundItems
-            notFoundItems = []
-            for category in uniqueItems:
-                try:
-                    formattedCategory = self.__format_item(category)
-                    self.browserLib.click_element(
-                        checkboxByValue[formattedCategory])
-                except:
-                    notFoundItems.append(category)
-            print("Not found: ", notFoundItems)
+        # If categories contains `Any` - skip selecting
+        uniqueItems = set(items)
+        formattedItems = set(
+            [
+                self.__format_item(category)
+                for category in uniqueItems
+            ]
+        )
+        if "any" in formattedItems:
+            return
 
-            # Verify selected items
-            self.__verify_selected_items(
-                notFoundItems, formattedItems, type)
-        except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            e, sys.exc_info()[-1].tb_lineno)
+        # Select items and save notFoundItems
+        notFoundItems = []
+        for category in uniqueItems:
+            try:
+                formattedCategory = self.__format_item(category)
+                self.browserLib.click_element(
+                    checkboxByValue[formattedCategory])
+            except:
+                notFoundItems.append(category)
+        print("Not found: ", notFoundItems)
 
+        # Verify selected items
+        self.__verify_selected_items(
+            notFoundItems, formattedItems, type)
+
+    @exception_decorator("Sort By Newest")
+    @step_logger_decorator("Sort By Newest")
     def sort_by_newest(self):
         """Sort articles by newest."""
-        try:
-            # Define selectors
-            sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
+        # Define selectors
+        sortBySelector = 'css:[data-testid="SearchForm-sortBy"]'
 
-            # Select
-            valueToSelect = 'newest'
-            self.browserLib.select_from_list_by_value(
-                sortBySelector, valueToSelect)
+        # Select
+        valueToSelect = 'newest'
+        self.browserLib.select_from_list_by_value(
+            sortBySelector, valueToSelect)
 
-            # Verify
-            sortByElementValue = self.browserLib.get_selected_list_value(
-                sortBySelector)
-            assert sortByElementValue == valueToSelect
-        except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            e, sys.exc_info()[-1].tb_lineno)
+        # Verify
+        sortByElementValue = self.browserLib.get_selected_list_value(
+            sortBySelector)
+        assert sortByElementValue == valueToSelect
 
+    @exception_decorator("Expand And Get All Articles")
+    @step_logger_decorator("Expand And Get All Articles")
     def expand_and_get_all_articles(self) -> list[tuple[any, str]]:
         """Expand and count all results."""
-        try:
-            # Define selectors
-            showMoreButtonSelector = 'css:[data-testid="search-show-more-button"]'
-            searchResultsSelector = 'css:[data-testid="search-results"]'
-            searchResultSelector = 'css:[data-testid="search-bodega-result"]'
-            searchResultLinkSelector = 'css:[data-testid="search-bodega-result"] a'
+        # Define selectors
+        showMoreButtonSelector = 'css:[data-testid="search-show-more-button"]'
+        searchResultsSelector = 'css:[data-testid="search-results"]'
+        searchResultSelector = 'css:[data-testid="search-bodega-result"]'
+        searchResultLinkSelector = 'css:[data-testid="search-bodega-result"] a'
 
-            # Expand all elements
-            self.__expand_all_elements(
-                showMoreButtonSelector, searchResultsSelector
-            )
+        # Expand all elements
+        self.__expand_all_elements(
+            showMoreButtonSelector, searchResultsSelector
+        )
 
-            # Get all elements
-            searchResultList = self.browserLib.find_element(
-                searchResultsSelector)
-            searchResultItems = self.browserLib.find_elements(
-                searchResultSelector, searchResultList
-            )
-            print("count: " + str(len(searchResultItems)))
+        # Get all elements
+        searchResultList = self.browserLib.find_element(
+            searchResultsSelector)
+        searchResultItems = self.browserLib.find_elements(
+            searchResultSelector, searchResultList
+        )
+        print("count: " + str(len(searchResultItems)))
 
-            # Get unique elements
-            uniqueElements = self.__get_unique_elements(
-                searchResultItems, searchResultLinkSelector)
-            print("unique count: " + str(len(uniqueElements)))
-            return uniqueElements
+        # Get unique elements
+        uniqueElements = self.__get_unique_elements(
+            searchResultItems, searchResultLinkSelector)
+        print("unique count: " + str(len(uniqueElements)))
+        return uniqueElements
 
-        except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            e, sys.exc_info()[-1].tb_lineno)
-
+    @exception_decorator("Parse Article Data")
     def parse_article_data(self, articleElement):
         """Parse article's data"""
-        try:
-            # Define selectors
-            dateSelector = 'css:[data-testid="todays-date"]'
-            titleSelector = 'css:a > h4'
-            descriptionSelector = 'css:a p:nth-child(2)'
-            imageSelector = 'css:img'
+        # Define selectors
+        dateSelector = 'css:[data-testid="todays-date"]'
+        titleSelector = 'css:a > h4'
+        descriptionSelector = 'css:a p:nth-child(2)'
+        imageSelector = 'css:img'
 
-            # Get data
-            dateElement = self.browserLib.find_element(
-                dateSelector, articleElement)
-            date = self.browserLib.get_text(dateElement)
-            titleElement = self.browserLib.find_element(
-                titleSelector, articleElement)
-            title = self.browserLib.get_text(titleElement)
+        # Get data
+        dateElement = self.browserLib.find_element(
+            dateSelector, articleElement)
+        date = self.browserLib.get_text(dateElement)
+        titleElement = self.browserLib.find_element(
+            titleSelector, articleElement)
+        title = self.browserLib.get_text(titleElement)
+        try:
             descriptionElement = self.browserLib.find_element(
                 descriptionSelector, articleElement)
             description = self.browserLib.get_text(descriptionElement)
+        except:
+            description = None
+        try:
             imageElement = self.browserLib.find_element(
                 imageSelector, articleElement)
             imageUrl = self.__get_clean_url(
                 self.browserLib.get_element_attribute(imageElement, 'src')
             )
+        except:
+            imageUrl = None
 
-            return title, date, description, imageUrl
-        except Exception as e:
-            raise Exception(f'[{self.__class__.__name__}]',
-                            e, sys.exc_info()[-1].tb_lineno)
+        return title, date, description, imageUrl
 
     # Helper Methods
 
@@ -327,7 +323,7 @@ class SearchPage:
         return uniqueTupleItems
 
     def __get_clean_url(self, url) -> str:
-        """Parse url from `element` and remove query params."""
+        """Remove query params from url."""
 
         cleanUrl = urlunparse(list(urlparse(url)[:3]) + ['', '', ''])
         return cleanUrl
