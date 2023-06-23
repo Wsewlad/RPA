@@ -51,69 +51,69 @@ class SearchPage:
 
     @exception_decorator("Set Filters")
     @step_logger_decorator("Set Filters")
-    def set_filters(self, items: list[str], type: str):
+    def set_filters(self, items: list[str], filter_type: str):
         """Set filters and verify if selected."""
 
-        if type not in ['type', 'section']:
-            raise Exception(f"Undefined filter type: {type}")
+        if filter_type not in ['type', 'section']:
+            raise Exception(f"Undefined filter type: {filter_type}")
 
         # Define selectors
-        formSelector = f'css:[role="form"][data-testid="{type}"]'
-        buttonSelector = 'css:button[data-testid="search-multiselect-button"]'
-        dropdownListSelector = 'css:[data-testid="multi-select-dropdown-list"]'
-        checkboxSelector = 'css:input[type="checkbox"]'
+        form_selector = f'css:[role="form"][data-testid="{filter_type}"]'
+        button_selector = 'css:button[data-testid="search-multiselect-button"]'
+        dropdown_list_selector = 'css:[data-testid="multi-select-dropdown-list"]'
+        checkbox_selector = 'css:input[type="checkbox"]'
 
         # Open dropdown list
-        typeFormElement = self.browserLib.find_element(formSelector)
-        buttonElement = self.browserLib.find_element(
-            buttonSelector, typeFormElement)
-        self.browserLib.click_element(buttonElement)
+        type_form_element = self.browser_lib.find_element(form_selector)
+        button_element = self.browser_lib.find_element(
+            button_selector, type_form_element)
+        self.browser_lib.click_element(button_element)
 
         # Wait for dropdown list
-        dropdownListElement = self.browserLib.find_element(
-            dropdownListSelector, typeFormElement)
-        self.browserLib.wait_until_element_is_visible(dropdownListElement)
+        dropdown_list_element = self.browser_lib.find_element(
+            dropdown_list_selector, type_form_element)
+        self.browser_lib.wait_until_element_is_visible(dropdown_list_element)
 
         # Find all checkbox elements and map it by value
-        checkboxElements = self.browserLib.find_elements(
-            checkboxSelector, dropdownListElement)
-        checkboxByValue: dict[str, any] = dict([
+        checkbox_elements = self.browser_lib.find_elements(
+            checkbox_selector, dropdown_list_element)
+        checkbox_by_value: dict[str, any] = dict([
             (
                 self.__format_item(
-                    self.browserLib.get_element_attribute(
+                    self.browser_lib.get_element_attribute(
                         checkbox, 'value'
                     ).split('|nyt:', 1)[0]
                 ),
                 checkbox
             )
-            for checkbox in checkboxElements
+            for checkbox in checkbox_elements
         ])
 
         # If categories contains `Any` - skip selecting
-        uniqueItems = set(items)
-        formattedItems = set(
+        unique_items = set(items)
+        formatted_items = set(
             [
                 self.__format_item(category)
-                for category in uniqueItems
+                for category in unique_items
             ]
         )
-        if "any" in formattedItems:
+        if "any" in formatted_items:
             return
 
-        # Select items and save notFoundItems
-        notFoundItems = []
-        for category in uniqueItems:
+        # Select items and save not_found_items
+        not_found_items = []
+        for category in unique_items:
             try:
-                formattedCategory = self.__format_item(category)
-                self.browserLib.click_element(
-                    checkboxByValue[formattedCategory])
+                formatted_category = self.__format_item(category)
+                self.browser_lib.click_element(
+                    checkbox_by_value[formatted_category])
             except:
-                notFoundItems.append(category)
-        print("Unknown filters: ", notFoundItems)
+                not_found_items.append(category)
+        print("Unknown filters: ", not_found_items)
 
         # Verify selected items
         self.__verify_selected_items(
-            notFoundItems, formattedItems, type)
+            not_found_items, formatted_items, filter_type)
 
     @exception_decorator("Sort By Newest")
     @step_logger_decorator("Sort By Newest")
