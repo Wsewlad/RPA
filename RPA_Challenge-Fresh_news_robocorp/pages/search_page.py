@@ -292,33 +292,33 @@ class SearchPage:
             search_results_selector, timeout=10
         )
 
-    def __get_unique_elements(self, searchResultItems, searchResultLinkSelector) -> list[tuple[any, str]]:
-        """Extract url subelements, remove query params and filter element by it to get only unique element."""
+    def __get_unique_elements(self, search_result_items, search_result_link_selector) -> list[tuple[any, str]]:
+        """Extract URL subelements, remove query parameters, and filter elements to get only unique elements."""
 
-        # Make Tuple with urls
-        tupleItems = [
+        # Make tuple with URLs
+        tuple_items = [
             (
                 element,
                 self.__get_clean_url(
-                    self.browserLib.get_element_attribute(
-                        self.browserLib.find_element(
-                            searchResultLinkSelector, element),
+                    self.browser_lib.get_element_attribute(
+                        self.browser_lib.find_element(
+                            search_result_link_selector, element),
                         'href'
                     )
                 )
             )
-            for element in searchResultItems
+            for element in search_result_items
         ]
 
-        # Filter by unique url
-        firstItem = tupleItems.pop(0)
-        uniqueTupleItems = [firstItem]
-        seenUrls = {firstItem[1]}
-        for item in tupleItems:
-            if item[1] not in seenUrls:
-                uniqueTupleItems.append(item)
-                seenUrls.add(item[1])
-        return uniqueTupleItems
+        # Filter by unique URL
+        first_item = tuple_items.pop(0)
+        unique_tuple_items = [first_item]
+        seen_urls = {first_item[1]}
+        for item in tuple_items:
+            if item[1] not in seen_urls:
+                unique_tuple_items.append(item)
+                seen_urls.add(item[1])
+        return unique_tuple_items
 
     def __get_clean_url(self, url) -> str:
         """Remove query params from url."""
