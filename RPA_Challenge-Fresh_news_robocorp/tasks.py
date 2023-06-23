@@ -70,41 +70,41 @@ def main():
         library.get_input_work_item()
         variables = library.get_work_item_variables()
 
-        searchPhrase: str = variables["search_phrase"]
+        search_phrase: str = variables["search_phrase"]
         categories: list = variables.get("categories", [])
         sections: list = variables.get("sections", [])
-        numberOfMonth: int = variables.get("number_of_month", 0)
-        startDate, endDate = get_date_range(numberOfMonth)
+        number_of_month: int = variables.get("number_of_month", 0)
+        start_date, end_date = get_date_range(number_of_month)
 
         # Init browser lib
-        browserLib: Selenium = Selenium()
-        browserLib.auto_close = False
+        browser_lib: Selenium = Selenium()
+        browser_lib.auto_close = False
 
         # Home page logic
-        homePage = HomePage(browserLib)
-        homePage.lend_first_page()
-        homePage.enter_search_query(searchPhrase)
+        home_page = HomePage(browser_lib)
+        home_page.lend_first_page()
+        home_page.enter_search_query(search_phrase)
 
         # Search page logic
-        searchPage = SearchPage(browserLib)
+        search_page = SearchPage(browser_lib)
         # Set filters
         if len(categories) > 0:
-            searchPage.set_filters(categories, 'type')
+            search_page.set_filters(categories, 'type')
         else:
             print("No category filters provided")
         if len(sections) > 0:
-            searchPage.set_filters(sections, 'section')
+            search_page.set_filters(sections, 'section')
         else:
             print("No section filters provided")
-        searchPage.set_date_range(startDate, endDate)
-        searchPage.sort_by_newest()
+        search_page.set_date_range(start_date, end_date)
+        search_page.sort_by_newest()
         # Get all unique articles
-        articles = searchPage.expand_and_get_all_articles()
+        articles = search_page.expand_and_get_all_articles()
         if len(articles) == 0:
             print("No articles")
             return
-        # Create  Excel file and download pictures
-        create_and_fill_excel_file(searchPage, searchPhrase, articles)
+        # Create Excel file and download pictures
+        create_and_fill_excel_file(search_page, search_phrase, articles)
 
     except Exception as e:
         print("Error:", e)
