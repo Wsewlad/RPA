@@ -251,25 +251,25 @@ class SearchPage:
             start_date_input_string, end_date_input_string)
         assert matched, "Date range from UI doesn't match"
 
-    def __parse_and_verify_date_range_from_ui(self, startDateInputString: str, endDateInputString: str) -> bool:
+    def __parse_and_verify_date_range_from_ui(self, start_date_input_string: str, end_date_input_string: str) -> bool:
         """Find, parse and validate date range from UI"""
 
         # Define selectors
-        dateRangeSelector = 'css:div.query-facet-date button[facet-name="date"]'
+        date_range_selector = 'css:div.query-facet-date button[facet-name="date"]'
 
         # Get date range from UI element
-        dateRangeValue = self.browserLib.get_element_attribute(
-            dateRangeSelector, 'value'
+        date_range_value = self.browser_lib.get_element_attribute(
+            date_range_selector, 'value'
         )
 
         # Parse start and end dates
-        parsedStartDate = re.search(
-            "^\d{2}/\d{2}/\d{4}", dateRangeValue).group()
-        parsedEndDate = re.search(
-            "\d{2}/\d{2}/\d{4}$", dateRangeValue).group()
+        parsed_start_date = re.search(
+            "^\d{2}/\d{2}/\d{4}", date_range_value).group()
+        parsed_end_date = re.search(
+            "\d{2}/\d{2}/\d{4}$", date_range_value).group()
 
         # Validate
-        matched = startDateInputString == parsedStartDate and endDateInputString == parsedEndDate
+        matched = start_date_input_string == parsed_start_date and end_date_input_string == parsed_end_date
         return matched
 
     def __expand_all_elements(self, showMoreButtonSelector, searchResultsSelector):
