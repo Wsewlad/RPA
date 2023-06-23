@@ -14,15 +14,15 @@ import common.Helpers as helpers
 from common.Decorators import step_logger_decorator
 
 
-def make_row(date, title, description, pictureUrl, searchPhrase):
-    """Constract a row for excel table."""
+def make_row(date, title, description, picture_url, search_phrase):
+    """Construct a row for the excel table."""
     row = {
         'Date': date,
         'Title': title,
-        'Search Phrases Count': helpers.count_query_occurrences(searchPhrase, title, description),
+        'Search Phrases Count': helpers.count_query_occurrences(search_phrase, title, description),
         'Description': description or 'No description found',
         'Contains Money': helpers.contains_money(title, description),
-        'Picture Filename': helpers.get_file_name_from_url(pictureUrl) or "No picture found"
+        'Picture Filename': helpers.get_file_name_from_url(picture_url) or "No picture found"
     }
     return row
 
