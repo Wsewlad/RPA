@@ -1,5 +1,0 @@
-Start: [Enter Search Query]
-End: [Enter Search Query]
-Start: [Set Filters]
-Error: [Set Filters] 'SearchPage' object has no attribute 'browserLib'
-End

@@ -1,3 +1,7 @@
+import time
+
+from common.Dates import get_time_tuple
+
 
 def exception_decorator(step_name=None):
     """
@@ -38,26 +42,15 @@ def exception_decorator(step_name=None):
 
 def step_logger_decorator(step_name=None):
     """
-    Decorator that logs the start and end of a function or step.
+    A decorator that logs the start and end of a function execution along with its execution time.
 
     Args:
-        `step_name (str, optional)`: Name of the step or function. If not provided, the decorator will try to use the function's qualified name. Defaults to None.
+        `step_name (str)`: Optional. The name of the step or function. If not provided, the decorator will
+        attempt to retrieve it from the function's __qualname__ attribute. If that is not available,
+        it will use the fully qualified name of the function (module + function name).
 
     Returns:
-        `function`: Decorated function.
-
-    Example:
-        ```
-        @step_logger_decorator('Step 1')
-        def perform_task():
-            print("Task execution")
-
-        perform_task()
-        # Output:
-        # Start: [Step 1]
-        # Task execution
-        # End: [Step 1]
-        ```
+        `function`: The decorated function.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -65,9 +58,14 @@ def step_logger_decorator(step_name=None):
             if source is None:
                 source = f"{func.__module__}.{func.__name__}"
             step = step_name or source
+            start_time = time.time()
             print(f"Start: [{step}]")
             result = func(*args, **kwargs)
-            print(f"End: [{step}]")
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            m, s, ms = get_time_tuple(elapsed_time)
+            print(
+                f"End: [{step}] Execution time - {m}m:{s}s:{ms}ms")
             return result
         return wrapper
     return decorator

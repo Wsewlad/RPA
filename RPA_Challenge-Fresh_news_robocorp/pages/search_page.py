@@ -6,6 +6,7 @@ import re
 # import custom modules
 import constants as Const
 from common.Decorators import exception_decorator, step_logger_decorator
+from models.Article import Article
 
 
 class SearchPage:
@@ -199,24 +200,43 @@ class SearchPage:
         print("Unique articles count: " + str(len(unique_elements)))
         return unique_elements
 
-    @exception_decorator("Parse Article Data")
-    def parse_article_data(self, article_element):
+    @step_logger_decorator("Parse Articles Data")
+    @exception_decorator("Parse Articles Data")
+    def parse_articles_data(self, articles, search_phrase):
         """
-        Parse the data of an article element and extract relevant information.
-
-        This method takes an article element and extracts the following information:
-        - Date of the article.
-        - Title of the article.
-        - Description of the article.
-        - URL of the article's image.
+        Parse the data of multiple articles.
 
         Args:
-            `article_element`: The element representing the article.
+            `articles (list)`: A list of article elements.\n
+            `search_phrase (str)`: The search phrase used to retrieve the articles.
 
         Returns:
-            `tuple[str, str, str, str]:`\n
-            A tuple containing the extracted information in the following order:\n
-                [Title, Date, Description, URL].
+            `list`: A list of Article objects containing the parsed data of the articles.
+        """
+        data = []
+        for article in articles:
+            try:
+                # Parse article data
+                article = self.parse_article_data(
+                    article[0], search_phrase
+                )
+
+                data.append(article)
+            except Exception as e:
+                print(f"Failed to parse article data: {article[1]}", e)
+        return data
+
+    @exception_decorator("Parse Article Data")
+    def parse_article_data(self, article_element, search_phrase):
+        """
+        Parse the data of an article element.
+
+        Args:
+            `article_element`: The element representing the article.\n
+            `search_phrase (str)`: The search phrase used to retrieve the articles.
+
+        Returns:
+            `Article`: An instance of the Article class containing the parsed data.
         """
         # Define selectors
         date_selector = 'css:[data-testid="todays-date"]'
@@ -237,6 +257,7 @@ class SearchPage:
             description = self.browser_lib.get_text(description_element)
         except:
             description = None
+            print(f'No description found for: {title}')
         try:
             image_element = self.browser_lib.find_element(
                 image_selector, article_element)
@@ -246,7 +267,7 @@ class SearchPage:
         except:
             image_url = None
 
-        return title, date, description, image_url
+        return Article(search_phrase, title, date, description, image_url)
 
     # Helper Methods
 

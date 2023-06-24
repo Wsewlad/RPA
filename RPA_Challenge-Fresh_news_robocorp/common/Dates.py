@@ -34,3 +34,32 @@ def get_date_range(months):
             start_date = datetime.date(current_year, prev_month, 1)
 
     return start_date, end_date
+
+
+def get_time_tuple(current_time):
+    """
+    Takes a time value in seconds and returns a tuple containing the equivalent minutes, seconds, and milliseconds.
+
+    Args:
+        `current_time (float)`: The time value in seconds.
+    Returns:
+        `tuple`: A tuple containing the `minutes, seconds, and milliseconds` extracted from the current_time value.
+    """
+    minutes = int(current_time // 60)
+    seconds = int(current_time % 60)
+    milliseconds = int((current_time % 1) * 1000)
+    return minutes, seconds, milliseconds
+
+
+def convert_string_to_date(date_string):
+    current_date = datetime.datetime.now()
+
+    if 'ago' in date_string:
+        # Handle "Xh ago" format
+        hours_ago = int(date_string.split('h')[0])
+        date = current_date - datetime.timedelta(hours=hours_ago)
+    else:
+        # Handle "Month day" format
+        date = datetime.datetime.strptime(date_string, "%B %d").date
+
+    return date
