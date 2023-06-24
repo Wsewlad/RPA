@@ -51,7 +51,7 @@ class SearchPage:
 
     @exception_decorator("Set Filters")
     @step_logger_decorator("Set Filters")
-    def set_filters(self, items: list[str], filter_type: str):
+    def set_filters(self, items, filter_type):
         """Set filters and verify if selected."""
 
         if filter_type not in ['type', 'section']:
@@ -77,7 +77,7 @@ class SearchPage:
         # Find all checkbox elements and map it by value
         checkbox_elements = self.browser_lib.find_elements(
             checkbox_selector, dropdown_list_element)
-        checkbox_by_value: dict[str, any] = dict([
+        checkbox_by_value = dict([
             (
                 self.__format_item(
                     self.browser_lib.get_element_attribute(
@@ -134,7 +134,7 @@ class SearchPage:
 
     @exception_decorator("Expand And Get All Articles")
     @step_logger_decorator("Expand And Get All Articles")
-    def expand_and_get_all_articles(self) -> list[tuple[any, str]]:
+    def expand_and_get_all_articles(self):
         """Expand and count all results."""
         # Define selectors
         show_more_button_selector = 'css:[data-testid="search-show-more-button"]'
@@ -229,7 +229,7 @@ class SearchPage:
         assert len(set(expected_selected_items).intersection(selected_items_labels)) == len(
             expected_selected_items), f"Selected {type} items don't match"
 
-    def __verify_date_entries(self, start_date_input_string: str, end_date_input_string: str, start_date_query_string: str, end_date_query_string: str):
+    def __verify_date_entries(self, start_date_input_string, end_date_input_string, start_date_query_string, end_date_query_string):
         """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
 
         # Parse dates from current url query params
@@ -251,7 +251,7 @@ class SearchPage:
             start_date_input_string, end_date_input_string)
         assert matched, "Date range from UI doesn't match"
 
-    def __parse_and_verify_date_range_from_ui(self, start_date_input_string: str, end_date_input_string: str) -> bool:
+    def __parse_and_verify_date_range_from_ui(self, start_date_input_string, end_date_input_string) -> bool:
         """Find, parse and validate date range from UI"""
 
         # Define selectors
@@ -283,7 +283,6 @@ class SearchPage:
                 self.browser_lib.click_element_when_clickable(
                     show_more_button_selector, timeout=10)
                 self.browser_lib.mouse_over(show_more_button_selector)
-                # self.browser_lib.click_button(show_more_button)
             except:
                 print("No more Show Button")
                 break
@@ -292,7 +291,7 @@ class SearchPage:
             search_results_selector, timeout=10
         )
 
-    def __get_unique_elements(self, search_result_items, search_result_link_selector) -> list[tuple[any, str]]:
+    def __get_unique_elements(self, search_result_items, search_result_link_selector):
         """Extract URL subelements, remove query parameters, and filter elements to get only unique elements."""
 
         # Make tuple with URLs
