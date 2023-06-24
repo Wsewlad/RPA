@@ -60,6 +60,7 @@ def convert_string_to_date(date_string):
         date = current_date - datetime.timedelta(hours=hours_ago)
     else:
         # Handle "Month day" format
-        date = datetime.datetime.strptime(date_string, "%B %d").date
+        date = datetime.datetime.strptime(date_string, "%B %d").date()
+        date = date.replace(year=current_date.year)
 
     return date
