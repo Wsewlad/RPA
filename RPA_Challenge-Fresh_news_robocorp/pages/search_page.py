@@ -20,7 +20,13 @@ class SearchPage:
     @exception_decorator("Set Date Range")
     @step_logger_decorator("Set Date Range")
     def set_date_range(self, start_date, end_date):
-        """Set date range."""
+        """
+        Set and verify the date range for the search.
+
+        Args:
+            `start_date (datetime.date)`: The start date of the date range.\n
+            `end_date (datetime.date)`: The end date of the date range.
+        """
         # Define selectors
         search_date_dropdown_selector = 'css:[data-testid="search-date-dropdown-a"]'
         specific_dates_selector = 'css:[value="Specific Dates"]'
@@ -52,8 +58,27 @@ class SearchPage:
     @exception_decorator("Set Filters")
     @step_logger_decorator("Set Filters")
     def set_filters(self, items, filter_type):
-        """Set filters and verify if selected."""
+        """
+        Set the filters for the search.
 
+        This method selects the specified filter items based on the filter type.
+
+        Args:
+            `items (list[str])`: A list of filter items to select.\n
+            `filter_type (str)`: The type of filter to apply. Valid values are 'type' and 'section'.
+
+        Raises:
+            `Exception`: If the filter_type is not 'type' or 'section'.
+
+        Example:
+        ```
+            browser_lib = Selenium()
+            search_page = SearchPage(browser_lib)
+            sections = ['Opinion', 'Politics']
+            filter_type = 'section'
+            nytimes.set_filters(sections, filter_type)
+        ```
+        """
         if filter_type not in ['type', 'section']:
             raise Exception(f"Undefined filter type: {filter_type}")
 
@@ -89,7 +114,7 @@ class SearchPage:
             for checkbox in checkbox_elements
         ])
 
-        # If categories contains `Any` - skip selecting
+        # If categories contains `Any` - skip selection
         unique_items = set(items)
         formatted_items = set(
             [
@@ -118,7 +143,11 @@ class SearchPage:
     @exception_decorator("Sort By Newest")
     @step_logger_decorator("Sort By Newest")
     def sort_by_newest(self):
-        """Sort articles by newest."""
+        """
+        Sort the search results by newest.
+
+        This method selects the 'newest' option from the sort by dropdown menu.
+        """
         # Define selectors
         sort_by_selector = 'css:[data-testid="SearchForm-sortBy"]'
 
@@ -135,7 +164,16 @@ class SearchPage:
     @exception_decorator("Expand And Get All Articles")
     @step_logger_decorator("Expand And Get All Articles")
     def expand_and_get_all_articles(self):
-        """Expand and count all results."""
+        """
+         Expand all articles in the search results and retrieve the unique articles.
+
+         This method expands all articles by clicking the 'Show More' button until all articles are displayed.
+         It then retrieves all the articles and filters out duplicate articles to return only the unique ones.
+
+         Returns:
+             `list[tuple[any, str]]`: A list of tuples representing unique articles.\n
+             Each tuple contains an element and its corresponding URL.
+         """
         # Define selectors
         show_more_button_selector = 'css:[data-testid="search-show-more-button"]'
         search_results_selector = 'css:[data-testid="search-results"]'
@@ -163,7 +201,23 @@ class SearchPage:
 
     @exception_decorator("Parse Article Data")
     def parse_article_data(self, article_element):
-        """Parse article's data"""
+        """
+        Parse the data of an article element and extract relevant information.
+
+        This method takes an article element and extracts the following information:
+        - Date of the article.
+        - Title of the article.
+        - Description of the article.
+        - URL of the article's image.
+
+        Args:
+            `article_element`: The element representing the article.
+
+        Returns:
+            `tuple[str, str, str, str]:`\n
+            A tuple containing the extracted information in the following order:\n
+                [Title, Date, Description, URL].
+        """
         # Define selectors
         date_selector = 'css:[data-testid="todays-date"]'
         title_selector = 'css:a > h4'
@@ -200,8 +254,17 @@ class SearchPage:
         return item.replace(" ", "").lower()
 
     def __verify_selected_items(self, not_found_items, formatted_items, type):
-        """Verify selected items."""
+        """
+        Verify the selected items on UI against the expected filter items of a specific type.
 
+        Args:
+            `not_found_items (list)`: A list of items that were not found.\n
+            `formatted_items (set)`: A set of formatted items representing the expected items.\n
+            `type (str)`: The type of the items to verify ('type' or 'section').
+
+        Raises:
+            `AssertionError`: If the selected items do not match the expected items.
+        """
         # Define selectors
         selected_item_container_selector = f'css:div.query-facet-{type}s'
         selected_item_selector = f'css:button[facet-name="{type}s"]'
@@ -230,8 +293,20 @@ class SearchPage:
             expected_selected_items), f"Selected {type} items don't match"
 
     def __verify_date_entries(self, start_date_input_string, end_date_input_string, start_date_query_string, end_date_query_string):
-        """Parse and validate dates from the current URL query parameters and perform additional validation with page reload."""
+        """
+        Parse and validate dates from the current URL query parameters and perform additional validation with page reload.
 
+        This method retrieves the current URL query parameters, parses and validates the start and end dates from the query parameters. It also performs date range validation from the UI. If the date range from the UI does not match the expected range, the page is reloaded and the validation is performed again.
+
+        Args:
+            start_date_input_string (str): The input string representing the start date.
+            end_date_input_string (str): The input string representing the end date.
+            start_date_query_string (str): The expected start date in the query parameters.
+            end_date_query_string (str): The expected end date in the query parameters.
+
+        Raises:
+            AssertionError: If the start date or end date from the query parameters do not match the expected values, or if the date range from the UI does not match the expected range.
+        """
         # Parse dates from current url query params
         current_url = urlparse(self.browser_lib.get_location())
         query_params = parse_qs(current_url.query)
@@ -252,8 +327,18 @@ class SearchPage:
         assert matched, "Date range from UI doesn't match"
 
     def __parse_and_verify_date_range_from_ui(self, start_date_input_string, end_date_input_string) -> bool:
-        """Find, parse and validate date range from UI"""
+        """
+        Parse and verify the date range from the UI element.
 
+        This method retrieves the date range value from the UI element and parses it to extract the start and end dates. It then compares the parsed dates with the input date strings to validate the date range.
+
+        Args:
+            `start_date_input_string (str)`: The input string representing the start date.\n
+            `end_date_input_string (str)`: The input string representing the end date.
+
+        Returns:
+            `bool`: True if the parsed start and end dates from the UI match the input date strings, False otherwise.
+        """
         # Define selectors
         date_range_selector = 'css:div.query-facet-date button[facet-name="date"]'
 
@@ -273,8 +358,13 @@ class SearchPage:
         return matched
 
     def __expand_all_elements(self, show_more_button_selector, search_results_selector):
-        """Find and click `Show Button` until it is displayed to expand all the elements."""
+        """
+        Expand all elements by clicking the 'Show More' button until it is no longer visible.
 
+        Args:
+            `show_more_button_selector (str)`: The CSS selector for the 'Show More' button.\n
+            `search_results_selector (str)`: The CSS selector for the search results container.
+        """
         self.browser_lib.mouse_over(show_more_button_selector)
 
         # Expand all elements
@@ -292,8 +382,18 @@ class SearchPage:
         )
 
     def __get_unique_elements(self, search_result_items, search_result_link_selector):
-        """Extract URL subelements, remove query parameters, and filter elements to get only unique elements."""
+        """
+        Extract unique URL subelements from search result items.
 
+        This method extracts the URL subelements from the search result items, removes query parameters from the URLs, and filters the elements to get only unique elements based on their URLs.
+
+        Args:
+            `search_result_items (list)`: A list of search result items.\n
+            `search_result_link_selector (str)`: The CSS selector for the search result link elements.
+
+        Returns:
+            `list`: A list of tuples containing unique search result items and their corresponding cleaned URLs.
+        """
         # Make tuple with URLs
         tuple_items = [
             (
@@ -320,7 +420,17 @@ class SearchPage:
         return unique_tuple_items
 
     def __get_clean_url(self, url) -> str:
-        """Remove query parameters from URL."""
+        """
+        Get a clean version of the URL without query parameters or fragments.
 
+        This method takes a URL and removes any query parameters or fragments, returning a clean version of the URL.
+
+        Args:
+            `url (str)`: The input URL.
+
+        Returns:
+            `str`: The clean URL without query parameters or fragments.
+
+        """
         clean_url = urlunparse(list(urlparse(url)[:3]) + ['', '', ''])
         return clean_url

@@ -11,8 +11,9 @@ class HomePage:
         self.browser_lib = browser_lib
 
     def lend_first_page(self):
-        """Navigate to home page."""
-
+        """
+        Navigate to the home page of The New York Times website.
+        """
         self.browser_lib.open_available_browser(const.BASE_URL)
         title = self.browser_lib.get_title()
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + \
@@ -21,7 +22,23 @@ class HomePage:
     @exception_decorator("Enter Search Query")
     @step_logger_decorator("Enter Search Query")
     def enter_search_query(self, query):
-        """Enter search query."""
+        """
+        Enter a search query into the search input field and submit the search.
+
+        Args:
+            `query (str)`: The search query to enter.
+
+        Raises:
+            `AssertionError`: If the search text field value does not match the entered query.
+
+        Example:
+        ```
+            browser = Selenium()
+            home_page = HomePage(browser)
+            home_page.lend_first_page()
+            home_page.enter_search_query("Breaking News")
+        ```
+        """
         # Define selectors
         search_button = 'css:[data-test-id="search-button"]'
         search_input = 'css:[data-testid="search-input"]'

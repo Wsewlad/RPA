@@ -2,6 +2,22 @@ import datetime
 
 
 def get_date_range(months):
+    """
+    Calculate the date range based on the number of past months.
+
+    Args:
+        `months (int)`: Number of past months to include in the date range.
+
+    Returns:
+        `tuple`: A tuple containing the start date and end date of the date range.
+
+    Example:
+    ```
+        start_date, end_date = get_date_range(3)
+        print(start_date)  # Output: 2023-03-01
+        print(end_date)  # Output: 2023-05-30
+    ```
+    """
     current_date = datetime.date.today()
     current_year = current_date.year
     current_month = current_date.month
