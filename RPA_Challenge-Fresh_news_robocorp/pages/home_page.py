@@ -23,6 +23,7 @@ class HomePage:
         title = self.browser_lib.get_title()
 
         if self.browser_lib.is_element_visible(accept_cookies_selector):
+            print("Cookies popup found. Clossing...")
             self.browser_lib.click_element(accept_cookies_selector)
 
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + \
@@ -55,7 +56,7 @@ class HomePage:
         search_text_field = 'searchTextField'
 
         # Type search query
-        self.browser_lib.click_element_when_visible(search_button)
+        self.browser_lib.click_element(search_button)
         self.browser_lib.input_text_when_element_is_visible(
             search_input, query
         )
