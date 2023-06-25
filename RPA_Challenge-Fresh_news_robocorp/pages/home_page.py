@@ -1,5 +1,6 @@
 # import RPA modules
 from RPA.Browser.Selenium import Selenium
+from tenacity import retry
 from common.Decorators import exception_decorator, step_logger_decorator
 # import custom modules
 import constants as const
@@ -14,8 +15,16 @@ class HomePage:
         """
         Navigate to the home page of The New York Times website.
         """
+        # Define selectors
+        accept_cookies_selector = "//button[text()='Accept']"
+
         self.browser_lib.open_available_browser(const.BASE_URL)
+        self.browser_lib.set_window_size(1920, 1080)
         title = self.browser_lib.get_title()
+
+        if self.browser_lib.is_element_visible(accept_cookies_selector):
+            self.browser_lib.click_element(accept_cookies_selector)
+
         assert title == "The New York Times - Breaking News, US News, World News and Videos", "This is not Home Page, current page is - " + \
             self.browser_lib.get_location()
 
@@ -46,7 +55,7 @@ class HomePage:
         search_text_field = 'searchTextField'
 
         # Type search query
-        self.browser_lib.click_element(search_button)
+        self.browser_lib.click_element_when_visible(search_button)
         self.browser_lib.input_text_when_element_is_visible(
             search_input, query
         )

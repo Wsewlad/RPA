@@ -3,7 +3,6 @@ from RPA.Browser.Selenium import Selenium
 # import system modules
 from urllib.parse import urlparse, parse_qs, urlunparse
 import re
-from tenacity import retry, stop_after_attempt
 # import custom modules
 import constants as Const
 from common.Decorators import exception_decorator, step_logger_decorator
@@ -379,7 +378,6 @@ class SearchPage:
         matched = start_date_input_string == parsed_start_date and end_date_input_string == parsed_end_date
         return matched
 
-    @retry(stop=stop_after_attempt(3))
     def __expand_all_elements(self, show_more_button_selector, search_results_selector):
         """
         Expand all elements by clicking the 'Show More' button until it is no longer visible.
@@ -388,16 +386,16 @@ class SearchPage:
             `show_more_button_selector (str)`: The CSS selector for the 'Show More' button.\n
             `search_results_selector (str)`: The CSS selector for the search results container.
         """
-        self.browser_lib.mouse_over(show_more_button_selector)
 
         # Expand all elements
-        while self.browser_lib.is_element_visible(show_more_button_selector):
+        while self.browser_lib.is_element_enabled(show_more_button_selector):
             try:
-                self.browser_lib.click_element_when_clickable(
-                    show_more_button_selector, timeout=10)
-                self.browser_lib.mouse_over(show_more_button_selector)
-            except:
-                print("No more Show Button")
+                self.browser_lib.scroll_element_into_view(
+                    show_more_button_selector)
+                self.browser_lib.click_element(show_more_button_selector)
+
+            except Exception as e:
+                print("No more Show Button -", str(e))
                 break
 
         self.browser_lib.wait_until_element_is_enabled(

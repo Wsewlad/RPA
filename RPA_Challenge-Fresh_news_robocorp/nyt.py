@@ -1,12 +1,12 @@
 # import RPA modules
 from RPA.Browser.Selenium import Selenium
 from RPA.Robocorp.WorkItems import WorkItems
-from common.Dates import get_date_range
 # import system modules
 import concurrent.futures
-from common.Decorators import step_logger_decorator
 # import custom modules
 from excel import export_articles_to_excel_file
+from common.Dates import get_date_range
+from common.Decorators import step_logger_decorator
 # import pages
 from pages.home_page import HomePage
 from pages.search_page import SearchPage
@@ -22,6 +22,7 @@ class NYT:
         # Init browser lib
         self.browser_lib = Selenium()
         self.browser_lib.auto_close = False
+        self.browser_lib.set_selenium_implicit_wait(15)
 
     def get_work_item_variables(self):
         library = WorkItems()
@@ -77,8 +78,10 @@ class NYT:
         try:
             self.setup()
             variables = self.get_work_item_variables()
-
-            search_phrase = variables["search_phrase"]
+            try:
+                search_phrase = variables["search_phrase"]
+            except:
+                raise Exception("No search_phrase variable provided")
             categories = variables.get("categories", [])
             sections = variables.get("sections", [])
             number_of_month = variables.get("number_of_month", 0)
@@ -92,12 +95,18 @@ class NYT:
                 return
             export_articles_to_excel_file(articles)
             self.download_pictures(articles)
+
             # Uncomment and run to compare with Async analog
             # self.download_pictures_sync(articles)
 
         except Exception as e:
             print("An error occurred:", str(e))
+            if self.browser_lib:
+                self.browser_lib.capture_page_screenshot(
+                    filename='output/error.png')
         finally:
             print("End")
-            # if self.browser_lib:
-            #     self.browser_lib.close_all_browsers()
+            if self.browser_lib:
+                self.browser_lib.capture_page_screenshot(
+                    filename='output/end.png')
+                self.browser_lib.close_all_browsers()
