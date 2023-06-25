@@ -3,6 +3,7 @@ from RPA.Browser.Selenium import Selenium
 # import system modules
 from urllib.parse import urlparse, parse_qs, urlunparse
 import re
+from tenacity import retry, stop_after_attempt
 # import custom modules
 import constants as Const
 from common.Decorators import exception_decorator, step_logger_decorator
@@ -378,6 +379,7 @@ class SearchPage:
         matched = start_date_input_string == parsed_start_date and end_date_input_string == parsed_end_date
         return matched
 
+    @retry(stop=stop_after_attempt(3))
     def __expand_all_elements(self, show_more_button_selector, search_results_selector):
         """
         Expand all elements by clicking the 'Show More' button until it is no longer visible.

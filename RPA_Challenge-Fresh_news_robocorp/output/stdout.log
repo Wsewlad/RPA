@@ -1,0 +1,34 @@
+Start: [Enter Search Query]
+End: [Enter Search Query] Execution time - 0m:10s:832ms
+Start: [Set Filters]
+Unknown filters:  ['Something']
+End: [Set Filters] Execution time - 0m:2s:836ms
+Start: [Set Filters]
+End: [Set Filters] Execution time - 0m:0s:287ms
+Start: [Set Date Range]
+End: [Set Date Range] Execution time - 0m:5s:233ms
+Start: [Sort By Newest]
+End: [Sort By Newest] Execution time - 0m:0s:403ms
+Start: [Expand And Get All Articles]
+All articles count: 432
+Unique articles count: 372
+End: [Expand And Get All Articles] Execution time - 0m:44s:484ms
+Start: [Parse Articles Data]
+End: [Parse Articles Data] Execution time - 0m:27s:812ms
+Start: [Export Articles to Excel File]
+End: [Export Articles to Excel File] Execution time - 0m:0s:111ms
+Start: [Download Pictures]
+No picture found for: Corrections: June 24, 2023
+No picture found for: Debris From Russian Missile Kills Three in Kyiv Apartment Building
+No picture found for: Understanding Ukraine’s Counteroffensive
+No picture found for: Corrections: June 22, 2023
+No picture found for: The Re-Militarization of Germany
+No picture found for: Quotation of the Day: Hidden Horrors of Russian Treatment of P.O.W.s
+No picture found for: Corrections: June 20, 2023
+No picture found for: Transcript: Ezra Klein Interviews Jon Favreau
+No picture found for: Quotation of the Day: Every Block Is Another Battle for ‘the Cyborgs’ in Ukraine’s East
+No picture found for: Despite Calls for Protests, Trump Arraignment Draws Only Colorful Crowds
+No picture found for: A U.S. Citizen Has Been Arrested in Russia, State Department Says
+No picture found for: Transcript: Ezra Klein Interviews Fareed Zakaria
+End: [Download Pictures] Execution time - 2m:58s:877ms
+End
